@@ -1,0 +1,35 @@
+server:
+  port: 8080
+
+---
+# Профиль для development
+spring:
+  profiles: development
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/dev_db
+    username: dev_user
+    password: dev_password
+    driver-class-name: org.postgresql.Driver
+
+---
+# Профиль для test
+spring:
+  profiles: test
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/test_db
+    username: test_user
+    password: test_password
+    driver-class-name: org.postgresql.Driver
+
+---
+# Профиль для production
+spring:
+  profiles: production
+
+  datasource:
+    url: jdbc:postgresql://prod-host:5432/production_db
+    username: prod_user
+    password: prod_password
+    driver-class-name: org.postgresql.Driver
