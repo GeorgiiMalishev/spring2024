@@ -4,7 +4,9 @@ server:
 ---
 # Профиль для development
 spring:
-  profiles: development
+  config:
+    activate:
+      on-profile: development
 
   datasource:
     url: jdbc:postgresql://localhost:5432/dev_db
@@ -15,7 +17,9 @@ spring:
 ---
 # Профиль для test
 spring:
-  profiles: test
+  config:
+    activate:
+      on-profile: test
 
   datasource:
     url: jdbc:postgresql://localhost:5432/test_db
@@ -26,7 +30,9 @@ spring:
 ---
 # Профиль для production
 spring:
-  profiles: production
+  config:
+    activate:
+      on-profile: production
 
   datasource:
     url: jdbc:postgresql://prod-host:5432/production_db
