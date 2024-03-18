@@ -40,7 +40,7 @@ public class UserService {
      * @param id Идентификатор пользователя
      * @return пользователя; если пользователь не найден, то null
      */
-    public User getUserById(long id) {
+    public User getUserById(Long id) {
         User user = userRepository.findById(id);
         if (user == null)
             log.info("Не удалось найти пользователя с id {}", id);

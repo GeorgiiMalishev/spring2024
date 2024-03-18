@@ -2,14 +2,10 @@ package my.spring2024.app;
 
 import lombok.extern.slf4j.Slf4j;
 import my.spring2024.domain.Project;
-import my.spring2024.domain.Review;
-import my.spring2024.domain.User;
 import my.spring2024.infrastructure.ProjectRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 /**
  * Сервис для управления проектами в приложении.
@@ -39,7 +35,7 @@ public class ProjectService {
      * @param id Идентификатор проекта
      * @return проект; если проект не найден, то null
      */
-    public Project getProjectById(long id) {
+    public Project getProjectById(Long id) {
         Project project = projectRepository.findById(id);
         if (project == null)
             log.info("Не удалось найти проект с id {}", id);
