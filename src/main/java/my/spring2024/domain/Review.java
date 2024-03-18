@@ -1,9 +1,6 @@
 package my.spring2024.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +19,7 @@ public class Review {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     /**
      * Оценка от 1 до 5
@@ -35,14 +32,16 @@ public class Review {
     private String text;
 
     /**
-     * Идентификатор отправителя отзыва
+     * Отправитель отзыва
      */
-    private String senderId;
+    @ManyToOne
+    private User sender;
 
     /**
-     * Идентификатор получателя отзыва
+     * Получатель отзыва
      */
-    private String receiverId;
+    @ManyToOne
+    private User receiver;
 
     private boolean isValidRating(int rating){
         return rating >= 1 && rating <=5;

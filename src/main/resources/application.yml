@@ -9,10 +9,9 @@ spring:
       on-profile: development
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/dev_db
-    username: dev_user
-    password: dev_password
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:test
+    username: root
+    password: root
 
 ---
 # Профиль для test
@@ -22,10 +21,9 @@ spring:
       on-profile: test
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/test_db
-    username: test_user
-    password: test_password
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:test
+    username: root
+    password: root
 
 ---
 # Профиль для production
@@ -35,7 +33,6 @@ spring:
       on-profile: production
 
   datasource:
-    url: jdbc:postgresql://prod-host:5432/production_db
-    username: prod_user
-    password: prod_password
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:test
+    username: root
+    password: root

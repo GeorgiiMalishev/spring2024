@@ -20,7 +20,6 @@ import java.util.List;
 public class ProjectService {
     private final ProjectRepository projectRepository;
 
-    @Autowired
     public ProjectService(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
     }

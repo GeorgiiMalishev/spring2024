@@ -1,0 +1,6 @@
+CREATE TABLE project (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    description VARCHAR(255),
+    link VARCHAR(2048)
+);

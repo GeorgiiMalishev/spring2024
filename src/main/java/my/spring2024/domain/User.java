@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -22,63 +23,55 @@ public class User {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     /**
      * Имя пользователя.
      */
-    @Setter
     private String firstname;
 
     /**
      * Фамилия пользователя.
      */
-    @Setter
     private String lastname;
 
     /**
      * Электронная почта пользователя.
      */
-    @Setter
     private String email;
 
     /**
      * Ссылка на профиль пользователя на GitHub.
      */
-    @Setter
-    private String gitHubLink;
+    private URL gitHubLink;
 
     /**
      * Роль в команде
      */
-    @Setter
+    @Enumerated
     private TeamRoleTag role;
     /**
      * Список постов, созданных пользователем.
      */
     @OneToMany
-    @Setter
     private List<Post> posts;
 
     /**
      * Список отзывов, оставленных на пользователя.
      */
     @OneToMany
-    @Setter
     private List<Review> reviews;
 
     /**
      * Список проектов, в которых состоит пользователь
      */
     @ManyToMany
-    @Setter
     private List<Project> currentProjects;
 
     /**
      * Список проектов, в которых участвовал ранее пользователь
      */
     @ManyToMany
-    @Setter
     private List<Project> pastProjects;
 
     /**
@@ -87,7 +80,7 @@ public class User {
      *
      * @param id     Идентификатор пользователя.
      */
-    public User(long id) {
+    public User(Long id) {
         this.id = id;
     }
 }

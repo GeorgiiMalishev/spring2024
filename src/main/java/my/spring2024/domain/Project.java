@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -22,33 +23,28 @@ public class Project {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     /**
      * Название проекта
      */
-    @Setter
     private String name;
     /**
      * Описание проекта
      */
-    @Setter
     private String description;
     /**
      * Ссылка на репозиторий с проектом.
      */
-    @Setter
-    private String link;
+    private URL link;
     /**
      * Список пользователей, участвующих в проекте.
      */
-    @Setter
     @ManyToMany
     private List<User> users;
 
     /**
      * Список отзывов на проект.
      */
-    @Setter
     @OneToMany
     private List<Review> reviews;
 
