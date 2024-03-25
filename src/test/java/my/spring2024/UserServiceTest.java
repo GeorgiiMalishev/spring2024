@@ -31,4 +31,21 @@ public class UserServiceTest {
         User returnedUser = userService.getUserById(user.getId());
         assertEquals(user.getId(), returnedUser.getId());
     }
+
+    @Test
+    public void testDeleteUser(){
+        User user = new User();
+        var id = userService.saveUser(user).getId();
+        userService.deleteUser(id);
+        assertNull(userService.getUserById(id));
+    }
+
+    @Test
+    public void testGetUserByEmail(){
+        var email = "example@mail.com";
+        var user = User.builder().email(email).build();
+        userService.saveUser(user);
+        var returnedUser = userService.getUserByEmail(email);
+        assertEquals(user.getId(), returnedUser.getId());
+    }
 }

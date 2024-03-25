@@ -3,7 +3,6 @@ package my.spring2024.app;
 import lombok.extern.slf4j.Slf4j;
 import my.spring2024.domain.Post;
 import my.spring2024.infrastructure.PostRepository;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 /**
@@ -43,5 +42,14 @@ public class PostService {
             log.info("Пост с id {} найден", id);
             return post.get();
         }
+    }
+
+    /**
+     * Удаляет пост из базы данных по идентификатору.
+     * @param id Идентификатор отзыва.
+     */
+    public void deletePost(Long id) {
+        postRepository.deleteById(id);
+        log.info("Удален пост с id {}", id);
     }
 }

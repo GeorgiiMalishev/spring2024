@@ -1,16 +1,9 @@
 package my.spring2024.app;
 
 import lombok.extern.slf4j.Slf4j;
-import my.spring2024.domain.Post;
-import my.spring2024.domain.Review;
-import my.spring2024.domain.TeamRoleTag;
 import my.spring2024.domain.User;
 import my.spring2024.infrastructure.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * Сервис для управления пользователями в приложении.
@@ -50,5 +43,30 @@ public class UserService {
             return user.get();
         }
 
+    }
+
+    /**
+     * Удаляет пользователя из базы данных по идентификатору.
+     * @param id Идентификатор пользователя.
+     */
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+        log.info("Удален пользователь с id {}", id);
+    }
+
+    /**
+     * Ищет пользователей по email
+     * @param email email пользователя.
+     * @return Пользователь, с соответствующим email.
+     */
+    public User getUserByEmail(String email) {
+        var user = userRepository.findByEmail(email);
+        if (user != null){
+            log.info("Найден пользователь с email {}", email);
+            return user;
+        } else{
+            log.info("Не удалось найти пользователя с email {}", email);
+            return null;
+        }
     }
 }

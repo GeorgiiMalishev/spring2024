@@ -1,12 +1,10 @@
 package my.spring2024;
 
 import my.spring2024.app.ProjectService;
-import my.spring2024.app.ProjectService;
 import my.spring2024.domain.Project;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -32,5 +30,13 @@ public class ProjectServiceTest {
         projectService.saveProject(project);
         Project returnedProject = projectService.getProjectById(project.getId());
         assertEquals(project.getId(), returnedProject.getId());
+    }
+
+    @Test
+    public void testDeleteProject(){
+        Project project = new Project();
+        var id = projectService.saveProject(project).getId();
+        projectService.deleteProject(id);
+        assertNull(projectService.getProjectById(id));
     }
 }

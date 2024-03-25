@@ -31,4 +31,12 @@ public class PostServiceTest {
         Post returnedPost = postService.getPostById(post.getId());
         assertEquals(post.getId(), returnedPost.getId());
     }
+
+    @Test
+    public void testDeletePost(){
+        Post post = new Post();
+        var id = postService.savePost(post).getId();
+        postService.deletePost(id);
+        assertNull(postService.getPostById(id));
+    }
 }

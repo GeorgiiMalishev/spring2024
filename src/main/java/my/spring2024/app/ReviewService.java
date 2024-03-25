@@ -3,7 +3,6 @@ package my.spring2024.app;
 import lombok.extern.slf4j.Slf4j;
 import my.spring2024.domain.Review;
 import my.spring2024.infrastructure.ReviewRepository;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 /**
@@ -43,5 +42,14 @@ public class ReviewService {
             log.info("Отзыв с id {} найден", id);
             return review.get();
         }
+    }
+
+    /**
+     * Удаляет отзыв из базы данных по идентификатору.
+     * @param id Идентификатор отзыва.
+     */
+    public void deleteReview(Long id) {
+        reviewRepository.deleteById(id);
+        log.info("Удален отзыв с id {}", id);
     }
 }

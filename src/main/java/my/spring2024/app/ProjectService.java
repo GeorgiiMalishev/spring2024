@@ -3,7 +3,6 @@ package my.spring2024.app;
 import lombok.extern.slf4j.Slf4j;
 import my.spring2024.domain.Project;
 import my.spring2024.infrastructure.ProjectRepository;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 
@@ -44,5 +43,14 @@ public class ProjectService {
             log.info("Проект с id {} найден", id);
             return project.get();
         }
+    }
+
+    /**
+     * Удаляет проект из базы данных по идентификатору.
+     * @param id Идентификатор отзыва.
+     */
+    public void deleteProject(Long id) {
+        projectRepository.deleteById(id);
+        log.info("Удален проект с id {}", id);
     }
 }

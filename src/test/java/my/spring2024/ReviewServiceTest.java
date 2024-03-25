@@ -31,4 +31,12 @@ public class ReviewServiceTest {
         Review returnedReview = reviewService.getReviewById(review.getId());
         assertEquals(review.getId(), returnedReview.getId());
     }
+
+    @Test
+    public void testDeleteReview(){
+        Review review = new Review();
+        var id = reviewService.saveReview(review).getId();
+        reviewService.deleteReview(id);
+        assertNull(reviewService.getReviewById(id));
+    }
 }
