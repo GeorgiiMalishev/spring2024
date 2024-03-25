@@ -10,8 +10,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Sql(scripts = "/create_review_schema.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-@Sql(scripts = "/insert_review_data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {"/create_review_schema.sql", "/insert_review_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @DataJpaTest
 @ActiveProfiles("test")
 public class ReviewServiceTest {
@@ -22,7 +21,7 @@ public class ReviewServiceTest {
     public void testCreateReview() {
         Review review = new Review();
         Review returnedReview = reviewService.saveReview(review);
-        assertNotEquals(null, returnedReview.getId());
+        assertNotNull(returnedReview.getId());
     }
 
     @Test

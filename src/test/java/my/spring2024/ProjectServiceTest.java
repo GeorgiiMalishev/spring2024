@@ -12,8 +12,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Sql(scripts = "/create_project_schema.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-@Sql(scripts = "/insert_project_data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {"/create_project_schema.sql", "/insert_project_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @DataJpaTest
 @ActiveProfiles("test")
 public class ProjectServiceTest {
@@ -24,7 +23,7 @@ public class ProjectServiceTest {
     public void testCreateProject() {
         Project project = new Project();
         Project returnedProject = projectService.saveProject(project);
-        assertNotEquals(null, returnedProject.getId());
+        assertNotNull(returnedProject.getId());
     }
 
     @Test

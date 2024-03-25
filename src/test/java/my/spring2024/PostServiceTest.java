@@ -10,8 +10,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Sql(scripts = "/create_post_schema.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-@Sql(scripts = "/insert_post_data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {"/create_post_schema.sql", "/insert_post_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @DataJpaTest
 @ActiveProfiles("test")
 public class PostServiceTest {
@@ -22,7 +21,7 @@ public class PostServiceTest {
     public void testCreatePost() {
         Post post = new Post();
         Post returnedPost = postService.savePost(post);
-        assertNotEquals(null, returnedPost.getId());
+        assertNotNull(returnedPost.getId());
     }
 
     @Test

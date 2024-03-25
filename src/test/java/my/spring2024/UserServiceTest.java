@@ -10,8 +10,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Sql(scripts = "/create_user_schema.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-@Sql(scripts = "/insert_user_data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {"/create_user_schema.sql", "/insert_user_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @DataJpaTest
 @ActiveProfiles("test")
 public class UserServiceTest {
@@ -22,7 +21,7 @@ public class UserServiceTest {
     public void testCreateUser() {
         User user = new User();
         User returnedUser = userService.saveUser(user);
-        assertNotEquals(null, returnedUser.getId());
+        assertNotNull(returnedUser.getId());
     }
 
     @Test

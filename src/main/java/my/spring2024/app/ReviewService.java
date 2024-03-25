@@ -3,6 +3,7 @@ package my.spring2024.app;
 import lombok.extern.slf4j.Slf4j;
 import my.spring2024.domain.Review;
 import my.spring2024.infrastructure.ReviewRepository;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,8 +24,9 @@ public class ReviewService {
      * @return сохраненный отзыв
      */
     public Review saveReview(Review review){
+        var savedReview = reviewRepository.save(review);
         log.info("Сохранен отзыв {}", review.getId());
-        return reviewRepository.save(review);
+        return savedReview;
     }
 
     /**
@@ -33,12 +35,13 @@ public class ReviewService {
      * @return отзыв; если отзыв не найден, то null
      */
     public Review getReviewById(Long id) {
-        Review review = reviewRepository.findById(id);
-        if (review == null) {
-            log.info("Отзыв с id {} найден", id);
-        } else {
+        var review = reviewRepository.findById(id);
+        if (review.isEmpty()) {
             log.info("Не удалось найти отзыв с id {}", id);
+            return null;
+        } else {
+            log.info("Отзыв с id {} найден", id);
+            return review.get();
         }
-        return review;
     }
 }

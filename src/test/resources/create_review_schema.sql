@@ -1,4 +1,4 @@
-CREATE TABLE user (
+CREATE TABLE IF NOT EXISTS user (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     firstname VARCHAR(255),
     lastname VARCHAR(255),
@@ -7,7 +7,7 @@ CREATE TABLE user (
     role VARCHAR(255)
 );
 
-CREATE TABLE review (
+CREATE TABLE IF NOT EXISTS review (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     rating INT NOT NULL,
     text VARCHAR(255),

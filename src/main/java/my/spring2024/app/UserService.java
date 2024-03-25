@@ -17,7 +17,6 @@ import java.util.List;
  */
 @Slf4j
 @Service
-@Component
 public class UserService {
 
     private final UserRepository userRepository;
@@ -31,8 +30,9 @@ public class UserService {
      * @return сохраненный пользователь
      */
     public User saveUser(User user){
+        var savedUser = userRepository.save(user);
         log.info("Сохранен пользователь {}", user.getId());
-        return userRepository.save(user);
+        return savedUser;
     }
 
     /**
@@ -41,13 +41,14 @@ public class UserService {
      * @return пользователя; если пользователь не найден, то null
      */
     public User getUserById(Long id) {
-        User user = userRepository.findById(id);
-        if (user == null)
+        var user = userRepository.findById(id);
+        if (user.isEmpty()){
             log.info("Не удалось найти пользователя с id {}", id);
-        else {
+            return null;
+        } else {
             log.info("Пользователь с id {} найден", id);
-            return user;
+            return user.get();
         }
-        return null;
+
     }
 }
