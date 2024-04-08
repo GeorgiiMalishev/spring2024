@@ -2,10 +2,12 @@ package my.spring2024.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,6 +18,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Project {
     /**
      * Идентификатор проекта.
@@ -39,12 +42,12 @@ public class Project {
      * Список пользователей, участвующих в проекте.
      */
     @ManyToMany
-    private List<User> users;
+    private List<User> users = new ArrayList<User>();
 
     /**
      * Список отзывов на проект.
      */
     @OneToMany
-    private List<Review> reviews;
+    private List<Review> reviews = new ArrayList<Review>();
 
 }

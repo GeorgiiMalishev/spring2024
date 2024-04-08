@@ -1,9 +1,14 @@
 package my.spring2024.app;
 
 import lombok.extern.slf4j.Slf4j;
+import my.spring2024.domain.Project;
+import my.spring2024.domain.Review;
+import my.spring2024.domain.TeamRoleTag;
 import my.spring2024.domain.User;
 import my.spring2024.infrastructure.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Сервис для управления пользователями в приложении.
@@ -68,5 +73,94 @@ public class UserService {
             log.info("Не удалось найти пользователя с email {}", email);
             return null;
         }
+    }
+
+    /**
+     * Возвращает список пользователей с заданной ролью в команде.
+     * @param role Роль в команде.
+     * @return Список пользователей с заданной ролью.
+     */
+    public List<User> getUsersByRole(TeamRoleTag role) {
+        var users = userRepository.findAllByRole(role);
+        log.info("Найдено {} пользователей с ролью {}", users.size(), role);
+        return users;
+    }
+
+    /**
+     * Возвращает список пользователей, на данный момент состоящих в проекте.
+     * @param projectId Идентификатор проекта.
+     * @return Список пользователей.
+     */
+    public List<User> getUsersByCurrentProject(Long projectId) {
+        var users = userRepository.findAllByCurrentProjects_Id(projectId);
+        log.info("Найдено {} пользователей, участвующих в проекте с id {}", users.size(), projectId);
+        return users;
+    }
+
+    /**
+     * Возвращает список пользователей, участвовавших в проекте.
+     * @param projectId Идентификатор проекта.
+     * @return Список пользователей.
+     */
+    public List<User> getUsersByPastProject(Long projectId) {
+        var users = userRepository.findAllByPastProjects_Id(projectId);
+        log.info("Найдено {} пользователей, участвовавших в проекте с id {}", users.size(), projectId);
+        return users;
+    }
+
+
+    /**
+     * Добавляет отзыв к пользователю.
+     *
+     * @param userId Идентификатор пользователя.
+     * @param review Отзыв, который нужно добавить.
+     * @return Обновленный пользователь с добавленным отзывом.
+     */
+    public User addReviewToUser(Long userId, Review review) {
+        User user = getUserById(userId);
+        if (user == null) {
+            log.info("Не удалось добавить отзыв {} к пользователю с id {}: пользователь не найден", review.getId(), userId);
+            return null;
+        }
+
+        user.getReviews().add(review);
+        log.info("Добавление отзыва {} к пользователю с id {}", review.getId(), userId);
+        return saveUser(user);
+    }
+
+    /**
+     * Удаляет отзыв пользователя.
+     *
+     * @param userId Идентификатор пользователя.
+     * @param review Отзыв, который нужно удалить.
+     * @return Обновленный пользователь без удаленного отзыва.
+     */
+    public User removeReviewFromUser(Long userId, Review review) {
+        User user = getUserById(userId);
+        if (user == null) {
+            log.info("Не удалось удалить отзыв {} пользователя с id {}: пользователь не найден", review.getId(), userId);
+            return null;
+        }
+
+        if (!user.getReviews().contains(review)) {
+            log.info("Отзыв {} не найден у пользователя с id {} при попытке удаления", review.getId(), userId);
+            return null;
+        }
+
+        user.getReviews().remove(review);
+        log.info("Удаление отзыва {} пользователя с id {}", review.getId(), userId);
+        return saveUser(user);
+    }
+
+    /**
+     * Перемещает проект из текущих в прошлые проекты пользователя.
+     *
+     * @param user    Пользователь, для которого нужно обновить проекты.
+     * @param project Проект, который нужно переместить.
+     */
+    public void moveProjectToPast(User user, Project project) {
+        user.getCurrentProjects().remove(project);
+        user.getPastProjects().add(project);
+        saveUser(user);
     }
 }
