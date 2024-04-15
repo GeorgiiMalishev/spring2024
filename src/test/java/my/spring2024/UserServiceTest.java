@@ -80,7 +80,7 @@ public class UserServiceTest {
         User user = userService.saveUser(new User());
         Project project = projectService.saveProject(new Project());
         projectService.addUserToProject(project.getId(), user);
-        projectService.removeUserFromProject(project.getId(), user);
+        projectService.removeUserFromProject(project.getId(), user, user);
         List<User> users = userService.getUsersByPastProject(project.getId());
         assertEquals(1, users.size());
     }

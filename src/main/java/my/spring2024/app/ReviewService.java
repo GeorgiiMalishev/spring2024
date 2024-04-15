@@ -52,4 +52,5 @@ public class ReviewService {
         reviewRepository.deleteById(id);
         log.info("Удален отзыв с id {}", id);
     }
+
 }

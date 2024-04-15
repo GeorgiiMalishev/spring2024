@@ -43,7 +43,11 @@ public class Project {
      */
     @ManyToMany
     private List<User> users = new ArrayList<User>();
-
+    /**
+     * Лидер проекта
+     */
+    @ManyToOne
+    private User leader;
     /**
      * Список отзывов на проект.
      */

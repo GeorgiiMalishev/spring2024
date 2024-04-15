@@ -2,6 +2,7 @@ package my.spring2024.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
  * Класс Review представляет отзыв пользователя о другом пользователе.
  * Содержит информацию о оценке, тексте отзыва, отправителя и получателя.
  */
+@Builder
 @Entity
 @Getter
 @NoArgsConstructor

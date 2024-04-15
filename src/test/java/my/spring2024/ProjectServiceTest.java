@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
+
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @Sql(scripts = {"/create_project_schema.sql", "/insert_project_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
@@ -57,10 +60,10 @@ public class ProjectServiceTest {
 
     @Test
     public void testRemoveUserFromProject() {
-        Project project = projectService.saveProject(new Project());
+        Project project = projectService.saveProject(Project.builder().leader(new User()).users(new ArrayList<>()).build());
         User user = userService.saveUser(new User());
         projectService.addUserToProject(project.getId(), user);
-        Project updatedProject = projectService.removeUserFromProject(project.getId(), user);
+        Project updatedProject = projectService.removeUserFromProject(project.getId(), user, user);
         assertFalse(updatedProject.getUsers().contains(user));
     }
 
@@ -75,9 +78,9 @@ public class ProjectServiceTest {
     @Test
     public void testRemoveReviewFromProject() {
         Project project = projectService.saveProject(new Project());
-        Review review = reviewService.saveReview(new Review());
+        Review review = reviewService.saveReview(Review.builder().sender(new User()).build());
         projectService.addReviewToProject(project.getId(), review);
-        Project updatedProject = projectService.removeReviewFromProject(project.getId(), review);
+        Project updatedProject = projectService.removeReviewFromProject(project.getId(), review, review.getSender());
         assertFalse(updatedProject.getReviews().contains(review));
     }
 }

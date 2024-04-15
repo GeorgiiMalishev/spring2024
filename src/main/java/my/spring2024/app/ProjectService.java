@@ -71,45 +71,57 @@ public class ProjectService {
      */
     public Project addUserToProject(Long projectId, User user) {
         Project project = getProjectById(projectId);
-        if (project != null) {
-            project.getUsers().add(user);
-            log.info("Добавление пользователя {} в проект с id {}", user.getId(), projectId);
-            return saveProject(project);
-        }
-        return null;
-    }
-
-    /**
-     * Удаляет пользователя из проекта.
-     *
-     * @param projectId Идентификатор проекта.
-     * @param user Пользователь, которого нужно удалить.
-     * @return Обновленный проект без удаленного пользователя.
-     */
-    public Project removeUserFromProject(Long projectId, User user) {
-        Project project = getProjectById(projectId);
         if (project == null) {
-            log.info("Не удалось удалить пользователя {} из проекта с id {}: проект не найден", user.getId(), projectId);
+            log.info("Не удалось добавить пользователя {} к проекту с id {}: проект не найден", user.getId(), projectId);
             return null;
         }
 
         if (!project.getUsers().contains(user)) {
-            log.info("Пользователь {} не найден в проекте {} при попытке удаления", user.getId(), projectId);
-            return null;
+            project.getUsers().add(user);
+            log.info("Добавление пользователя {} в проект с id {}", user.getId(), projectId);
+            return saveProject(project);
         }
 
-        userService.moveProjectToPast(user, project);
-        project.getUsers().remove(user);
-        log.info("Удаление пользователя {} из проекта с id {}", user.getId(), projectId);
-        return saveProject(project);
+        log.info("Пользователь {} уже присутствует в проекте с id {}", user.getId(), projectId);
+        return project;
     }
 
     /**
+     * Удаляет пользователя из проекта.
+     * Требуется, чтобы вызывающий пользователь был лидером проекта.
+     *
+     * @param projectId Идентификатор проекта.
+     * @param user Пользователь, которого нужно удалить.
+     * @param initiator Пользователь, запрашивающий операцию удаления.
+     * @return Обновленный проект без удаленного пользователя, или null, если проект не найден.
+     */
+    public Project removeUserFromProject(Long projectId, User user, User initiator) {
+        Project project = getProjectById(projectId);
+        if (project == null) return null;
+
+        if (!initiator.equals(user) && !project.getLeader().equals(initiator)) {
+            log.info("Пользователь {} не удален из проекта {}, так как у инициатора {} нет прав", user.getId(), projectId, initiator.getId());
+            return project;
+        }
+
+        if (project.getUsers().contains(user)) {
+            project.getUsers().remove(user);
+            log.info("Удаление пользователя {} из проекта с id {}", user.getId(), projectId);
+            return saveProject(project);
+        }
+
+        log.info("Пользователь {} не найден в проекте {} при попытке удаления", user.getId(), projectId);
+        return project;
+    }
+
+
+    /**
      * Добавляет отзыв к проекту.
+     * Проект должен существовать для успешного добавления отзыва.
      *
      * @param projectId Идентификатор проекта.
      * @param review Отзыв, который нужно добавить.
-     * @return Обновленный проект с добавленным отзывом.
+     * @return Обновленный проект с добавленным отзывом, или null, если проект не найден.
      */
     public Project addReviewToProject(Long projectId, Review review) {
         Project project = getProjectById(projectId);
@@ -118,33 +130,43 @@ public class ProjectService {
             return null;
         }
 
-        project.getReviews().add(review);
-        log.info("Добавление отзыва {} к проекту с id {}", review.getId(), projectId);
-        return saveProject(project);
+        if (!project.getReviews().contains(review)) {
+            project.getReviews().add(review);
+            log.info("Добавление отзыва {} к проекту с id {}", review.getId(), projectId);
+            return saveProject(project);
+        }
+
+        log.info("Не удалось добавить отзыв {} к проекту с id {}: в проекте уже имеется этот отзыв", review.getId(), projectId);
+        return project;
     }
 
     /**
      * Удаляет отзыв из проекта.
+     * Требуется, чтобы вызывающий пользователь был автором отзыва.
      *
      * @param projectId Идентификатор проекта.
      * @param review Отзыв, который нужно удалить.
-     * @return Обновленный проект без удаленного отзыва.
+     * @param user Пользователь, запрашивающий операцию удаления.
+     * @return Обновленный проект без удаленного отзыва, или null, если проект не найден.
      */
-    public Project removeReviewFromProject(Long projectId, Review review) {
+    public Project removeReviewFromProject(Long projectId, Review review, User user) {
         Project project = getProjectById(projectId);
-        if (project == null) {
-            log.info("Не удалось удалить отзыв {} из проекта с id {}: проект не найден", review.getId(), projectId);
-            return null;
+        if (project == null) return null;
+
+        if (!review.getSender().equals(user)) {
+            log.info("Отзыв {} не удален, так как удаляющий не автор отзыва", review.getId());
+            return project;
         }
 
-        if (!project.getReviews().contains(review)) {
-            log.info("Отзыв {} не найден в проекте {} при попытке удаления", review.getId(), projectId);
-            return null;
+        if (project.getReviews().contains(review)) {
+            project.getReviews().remove(review);
+            log.info("Удаление отзыва {} из проекта с id {}", review.getId(), projectId);
+            return saveProject(project);
         }
 
-        project.getReviews().remove(review);
-        log.info("Удаление отзыва {} из проекта с id {}", review.getId(), projectId);
-        return saveProject(project);
+        log.info("Отзыв {} не найден в проекте {} при попытке удаления", review.getId(), projectId);
+        return project;
     }
+
 }
 
