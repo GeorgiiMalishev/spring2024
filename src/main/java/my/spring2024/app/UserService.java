@@ -18,9 +18,10 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
+    private final ReviewService reviewService;
+    public UserService(UserRepository userRepository, ReviewService reviewService) {
         this.userRepository = userRepository;
+        this.reviewService = reviewService;
     }
 
     /**
@@ -124,6 +125,7 @@ public class UserService {
         }
 
         user.getReviews().add(review);
+        reviewService.saveReview(review);
         log.info("Добавление отзыва {} к пользователю с id {}", review.getId(), userId);
         return saveUser(user);
     }

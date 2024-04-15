@@ -45,7 +45,7 @@ public class Review {
     @ManyToOne
     private User receiver;
 
-    private boolean isValidRating(int rating){
+    public boolean isValidRating(int rating){
         return rating >= 1 && rating <=5;
     }
 }
