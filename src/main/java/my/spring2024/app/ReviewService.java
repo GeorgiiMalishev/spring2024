@@ -91,9 +91,6 @@ public class ReviewService {
      */
     public double getAverageRating(User user) {
         List<Review> reviews = getReviewsByReceiver(user);
-        if (reviews.isEmpty()) {
-            return 0;
-        }
         return reviews.stream()
                 .mapToInt(Review::getRating)
                 .average()

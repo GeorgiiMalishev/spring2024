@@ -10,11 +10,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-//@Sql(scripts = {"/create_review_schema.sql", "/insert_review_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @DataJpaTest
 @ActiveProfiles("test")
 public class ReviewServiceTest {
