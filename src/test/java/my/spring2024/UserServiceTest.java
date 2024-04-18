@@ -86,19 +86,24 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testAddReviewToUser() {
-        var userId = userService.saveUser(new User()).getId();
-        Review review = reviewService.saveReview(new Review());
-        User updatedUser = userService.addReviewToUser(userId, review);
-        assertNotNull(updatedUser);
+    public void testAddReviewToUsers() {
+        var sender= userService.saveUser(new User());
+        var receiver = userService.saveUser(new User());
+        Review review = reviewService.saveReview(Review.builder().rating(5).build());
+        userService.addReviewToUsers(sender.getId(), receiver.getId(), review);
+
+        review = reviewService.getReviewById(review.getId());
+        assertEquals(review.getSender(), sender);
     }
 
     @Test
     public void testRemoveReviewFromUser() {
-        var userId = userService.saveUser(new User()).getId();
-        Review review = reviewService.saveReview(new Review());
-        userService.addReviewToUser(userId, review);
-        User updatedUser = userService.removeReviewFromUser(userId, review);
-        assertNotNull(updatedUser);
+        var sender= userService.saveUser(new User());
+        var receiver = userService.saveUser(new User());
+        Review review = reviewService.saveReview(Review.builder().rating(5).build());
+        userService.addReviewToUsers(sender.getId(), receiver.getId(), review);
+        userService.removeReviewFromUsers(sender.getId(), receiver.getId(), review);
+        assertEquals(0, reviewService.getReviewsByReceiver(receiver).size());
+        assertEquals(0, reviewService.getReviewsBySender(sender).size());
     }
 }

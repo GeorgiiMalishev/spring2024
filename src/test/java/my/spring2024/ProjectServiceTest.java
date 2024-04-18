@@ -70,17 +70,19 @@ public class ProjectServiceTest {
     @Test
     public void testAddReviewToProject() {
         Project project = projectService.saveProject(new Project());
-        Review review = reviewService.saveReview(new Review());
-        Project updatedProject = projectService.addReviewToProject(project.getId(), review);
-        assertTrue(updatedProject.getReviews().contains(review));
+        User sender = userService.saveUser(new User());
+        Review review = reviewService.saveReview(Review.builder().rating(5).build());
+        projectService.addReviewToProject(sender.getId(), project.getId(), review);
+        assertTrue(projectService.getProjectById(project.getId()).getReviews().contains(review));
     }
 
     @Test
     public void testRemoveReviewFromProject() {
         Project project = projectService.saveProject(new Project());
-        Review review = reviewService.saveReview(Review.builder().sender(new User()).build());
-        projectService.addReviewToProject(project.getId(), review);
-        Project updatedProject = projectService.removeReviewFromProject(project.getId(), review, review.getSender());
-        assertFalse(updatedProject.getReviews().contains(review));
+        User user = userService.saveUser(new User());
+        Review review = reviewService.saveReview(Review.builder().rating(5).build());
+        projectService.addReviewToProject(user.getId(), project.getId(), review);
+        projectService.removeReviewFromProject(user.getId(), project.getId(), review);
+        assertFalse(projectService.getProjectById(project.getId()).getReviews().contains(review));
     }
 }

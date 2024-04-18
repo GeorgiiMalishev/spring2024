@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-    List<Review> findAllBySender(User user);
-    List<Review> findAllByReceiver(User user);
+    List<Review> findAllBySender(User sender);
+    List<Review> findAllByReceiver(User receiver);
 }

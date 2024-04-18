@@ -111,47 +111,55 @@ public class UserService {
 
 
     /**
-     * Добавляет отзыв к пользователю.
+     * Добавляет отзыв к отправителю и получателю.
      *
-     * @param userId Идентификатор пользователя.
+     * @param senderId Идентификатор отправителя отзыва.
+     * @param receiverId Идентификатор получателя отзыва.
      * @param review Отзыв, который нужно добавить.
-     * @return Обновленный пользователь с добавленным отзывом.
      */
-    public User addReviewToUser(Long userId, Review review) {
-        User user = getUserById(userId);
-        if (user == null) {
-            log.info("Не удалось добавить отзыв {} к пользователю с id {}: пользователь не найден", review.getId(), userId);
-            return null;
+    public void addReviewToUsers(Long senderId, Long receiverId, Review review) {
+        User sender = getUserById(senderId);
+        User receiver = getUserById(receiverId);
+        if (sender == null || receiver == null) {
+            log.info("Не удалось добавить отзыв {} к пользователям: пользователь с id {} не найден", review.getId(), sender == null ? senderId : receiverId);
+            return;
         }
 
-        user.getReviews().add(review);
+        sender.getSentReviews().add(review);
+        receiver.getReceivedReviews().add(review);
+        reviewService.addSenderToReview(sender, review);
+        reviewService.addReceiverToReview(receiver, review);
         reviewService.saveReview(review);
-        log.info("Добавление отзыва {} к пользователю с id {}", review.getId(), userId);
-        return saveUser(user);
+        log.info("Добавление отзыва {} к отправителю с id {} и получателю с id {}", review.getId(), senderId, receiverId);
+        saveUser(sender);
+        saveUser(receiver);
     }
 
     /**
-     * Удаляет отзыв пользователя.
+     * Удаляет отзыв у отправителя и получателя.
      *
-     * @param userId Идентификатор пользователя.
+     * @param senderId Идентификатор отправителя отзыва.
+     * @param receiverId Идентификатор получателя отзыва.
      * @param review Отзыв, который нужно удалить.
-     * @return Обновленный пользователь без удаленного отзыва.
      */
-    public User removeReviewFromUser(Long userId, Review review) {
-        User user = getUserById(userId);
-        if (user == null) {
-            log.info("Не удалось удалить отзыв {} пользователя с id {}: пользователь не найден", review.getId(), userId);
-            return null;
+    public void removeReviewFromUsers(Long senderId, Long receiverId, Review review) {
+        User sender = getUserById(senderId);
+        User receiver = getUserById(receiverId);
+        if (sender == null || receiver == null) {
+            log.info("Не удалось удалить отзыв {}: пользователь с id {} не найден", review.getId(), sender == null ? senderId : receiverId);
+            return;
         }
 
-        if (!user.getReviews().contains(review)) {
-            log.info("Отзыв {} не найден у пользователя с id {} при попытке удаления", review.getId(), userId);
-            return null;
+        if (!sender.getSentReviews().contains(review) || !receiver.getReceivedReviews().contains(review)) {
+            log.info("Отзыв {} не найден у пользователя с id {} при попытке удаления"
+                    , review.getId(), !sender.getSentReviews().contains(review) ? senderId : receiverId);
+            return;
         }
 
-        user.getReviews().remove(review);
-        log.info("Удаление отзыва {} пользователя с id {}", review.getId(), userId);
-        return saveUser(user);
+        sender.getSentReviews().remove(review);
+        receiver.getReceivedReviews().remove(review);
+        reviewService.deleteReview(review.getId());
+        log.info("Удаление отзыва {} у отправителя с id {} и получателя с id {}", review.getId(), senderId, receiverId);
     }
 
     /**

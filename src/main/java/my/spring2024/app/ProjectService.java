@@ -9,6 +9,7 @@ import my.spring2024.infrastructure.ProjectRepository;
 import my.spring2024.infrastructure.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 
@@ -21,9 +22,12 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserService userService;
 
-    public ProjectService(ProjectRepository projectRepository, UserService userService) {
+    private final ReviewService reviewService;
+
+    public ProjectService(ProjectRepository projectRepository, UserService userService, ReviewService reviewService) {
         this.projectRepository = projectRepository;
         this.userService = userService;
+        this.reviewService = reviewService;
     }
 
     /**
@@ -78,6 +82,7 @@ public class ProjectService {
 
         if (!project.getUsers().contains(user)) {
             project.getUsers().add(user);
+            user.getCurrentProjects().add(project);
             log.info("Добавление пользователя {} в проект с id {}", user.getId(), projectId);
             return saveProject(project);
         }
@@ -105,6 +110,7 @@ public class ProjectService {
         }
 
         if (project.getUsers().contains(user)) {
+            userService.moveProjectToPast(user, project);
             project.getUsers().remove(user);
             log.info("Удаление пользователя {} из проекта с id {}", user.getId(), projectId);
             return saveProject(project);
@@ -114,58 +120,55 @@ public class ProjectService {
         return project;
     }
 
-
     /**
-     * Добавляет отзыв к проекту.
-     * Проект должен существовать для успешного добавления отзыва.
+     * Добавляет отзыв к отправителю и проекту.
      *
+     * @param senderId Идентификатор отправителя отзыва.
      * @param projectId Идентификатор проекта.
      * @param review Отзыв, который нужно добавить.
-     * @return Обновленный проект с добавленным отзывом, или null, если проект не найден.
      */
-    public Project addReviewToProject(Long projectId, Review review) {
+    public void addReviewToProject(Long senderId, Long projectId, Review review) {
+        User sender = userService.getUserById(senderId);
         Project project = getProjectById(projectId);
-        if (project == null) {
-            log.info("Не удалось добавить отзыв {} к проекту с id {}: проект не найден", review.getId(), projectId);
-            return null;
+        if (sender == null || project == null) {
+            log.info("Не удалось добавить отзыв {}: сущность с id {} не найдена", review.getId(), sender == null ? senderId : projectId);
+            return;
         }
 
-        if (!project.getReviews().contains(review)) {
-            project.getReviews().add(review);
-            log.info("Добавление отзыва {} к проекту с id {}", review.getId(), projectId);
-            return saveProject(project);
-        }
-
-        log.info("Не удалось добавить отзыв {} к проекту с id {}: в проекте уже имеется этот отзыв", review.getId(), projectId);
-        return project;
+        sender.getSentReviews().add(review);
+        project.getReviews().add(review);
+        reviewService.addSenderToReview(sender, review);
+        reviewService.addProjectToReview(project, review);
+        reviewService.saveReview(review);
+        log.info("Добавление отзыва {} к отправителю с id {} и проекту с id {}", review.getId(), senderId, projectId);
+        userService.saveUser(sender);
+        saveProject(project);
     }
 
     /**
-     * Удаляет отзыв из проекта.
-     * Требуется, чтобы вызывающий пользователь был автором отзыва.
+     * Удаляет отзыв у отправителя и получателя.
      *
-     * @param projectId Идентификатор проекта.
+     * @param senderId Идентификатор отправителя отзыва.
+     * @param projectId Идентификатор проекта, получившго отзыв.
      * @param review Отзыв, который нужно удалить.
-     * @param user Пользователь, запрашивающий операцию удаления.
-     * @return Обновленный проект без удаленного отзыва, или null, если проект не найден.
      */
-    public Project removeReviewFromProject(Long projectId, Review review, User user) {
+    public void removeReviewFromProject(Long senderId, Long projectId, Review review) {
+        User sender = userService.getUserById(senderId);
         Project project = getProjectById(projectId);
-        if (project == null) return null;
-
-        if (!review.getSender().equals(user)) {
-            log.info("Отзыв {} не удален, так как удаляющий не автор отзыва", review.getId());
-            return project;
+        if (sender == null || project == null) {
+            log.info("Не удалось удалить отзыв {}: сущность с id {} не найдена", review.getId(), sender == null ? senderId : projectId);
+            return;
         }
 
-        if (project.getReviews().contains(review)) {
-            project.getReviews().remove(review);
-            log.info("Удаление отзыва {} из проекта с id {}", review.getId(), projectId);
-            return saveProject(project);
+        if (!sender.getSentReviews().contains(review) || !project.getReviews().contains(review)) {
+            log.info("Отзыв {} не найден у сущности с id {} при попытке удаления"
+                    , review.getId(), !sender.getSentReviews().contains(review) ? senderId : projectId);
+            return;
         }
 
-        log.info("Отзыв {} не найден в проекте {} при попытке удаления", review.getId(), projectId);
-        return project;
+        project.getReviews().remove(review);
+        reviewService.deleteReview(review.getId());
+        log.info("Удаление отзыва {} у отправителя с id {} и проекта с id {}", review.getId(), senderId, projectId);
     }
 
 }

@@ -1,6 +1,7 @@
 package my.spring2024.app;
 
 import lombok.extern.slf4j.Slf4j;
+import my.spring2024.domain.Project;
 import my.spring2024.domain.Review;
 import my.spring2024.domain.User;
 import my.spring2024.infrastructure.ReviewRepository;
@@ -30,7 +31,7 @@ public class ReviewService {
      */
     public Review saveReview(Review review) {
         if (!review.isValidRating(review.getRating())) {
-            log.error("Некорректная оценка отзыва: {}", review.getRating());
+            log.error("Некорректная оценка {} отзыва: {}", review.getRating(), review.getId());
             return null;
         }
         var savedReview = reviewRepository.save(review);
@@ -95,5 +96,56 @@ public class ReviewService {
                 .mapToInt(Review::getRating)
                 .average()
                 .orElse(0);
+    }
+
+    /**
+     * Добавляет отправителя к отзыву.
+     *
+     * @param sender   Отправитель отзыва, который должен быть добавлен к отзыву.
+     * @param review   Отзыв, к которому добавляются отправитель и получатель.
+     */
+    public void addSenderToReview(User sender, Review review){
+        if(sender.getSentReviews().contains(review)){
+            review.setSender(sender);
+            log.info("Добавлен отправитель с id {} к отзыву {}", sender.getId(), review.getId());
+        } else {
+            log.info("Не уддалось добавить отправителя с id {} к отзыву {}, отправитель не имеет этого отзыва", sender.getId(), review.getId());
+        }
+
+        reviewRepository.save(review);
+    }
+
+    /**
+     * Добавляет получателя к отзыву.
+     *
+     * @param receiver Получатель отзыва, который должен быть добавлен к отзыву.
+     * @param review   Отзыв, к которому добавляются отправитель и получатель.
+     */
+    public void addReceiverToReview(User receiver, Review review){
+        if(receiver.getReceivedReviews().contains(review)){
+            review.setReceiver(receiver);
+            log.info("Добавлен получатель с id {} к отзыву {}", receiver.getId(), review.getId());
+        } else {
+            log.info("Не уддалось добавить получателя с id {} к отзыву {}, получатель не имеет этого отзыва", receiver.getId(), review.getId());
+        }
+
+        reviewRepository.save(review);
+    }
+
+    /**
+     * Добавляет проект к отзыву.
+     *
+     * @param project Получатель отзыва, который должен быть добавлен к отзыву.
+     * @param review   Отзыв, к которому добавляются отправитель и получатель.
+     */
+    public void addProjectToReview(Project project, Review review){
+        if(project.getReviews().contains(review)){
+            review.setProject(project);
+            log.info("Добавлен проект с id {} к отзыву {}", project.getId(), review.getId());
+        } else {
+            log.info("Не уддалось добавить проект с id {} к отзыву {}, проект не имеет этого отзыва", project.getId(), review.getId());
+        }
+
+        reviewRepository.save(review);
     }
 }

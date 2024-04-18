@@ -55,10 +55,16 @@ public class User {
     private List<Post> posts = new ArrayList<Post>();
 
     /**
+     * Список отзывов, оставленных пользователем.
+     */
+    @OneToMany(mappedBy = "sender")
+    private List<Review> sentReviews = new ArrayList<Review>();
+
+    /**
      * Список отзывов, оставленных на пользователя.
      */
-    @OneToMany
-    private List<Review> reviews = new ArrayList<Review>();
+    @OneToMany(mappedBy = "receiver")
+    private List<Review> receivedReviews = new ArrayList<Review>();
 
     /**
      * Список проектов, в которых состоит пользователь

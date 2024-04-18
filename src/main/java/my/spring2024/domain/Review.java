@@ -1,10 +1,7 @@
 package my.spring2024.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * Класс Review представляет отзыв пользователя о другом пользователе.
@@ -36,14 +33,24 @@ public class Review {
     /**
      * Отправитель отзыва
      */
+    @Setter
     @ManyToOne
     private User sender;
 
     /**
      * Получатель отзыва
      */
+    @Setter
     @ManyToOne
     private User receiver;
+
+    /**
+     * Проект с отзывом
+     */
+    @Setter
+    @ManyToOne
+    private Project project;
+
 
     public boolean isValidRating(int rating){
         return rating >= 1 && rating <=5;
