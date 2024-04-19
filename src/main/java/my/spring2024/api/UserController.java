@@ -1,7 +1,10 @@
 package my.spring2024.api;
 
+import jakarta.validation.Valid;
+import my.spring2024.api.DTO.UserDTO;
 import my.spring2024.app.UserService;
 import my.spring2024.domain.User;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,36 +17,38 @@ import org.springframework.web.bind.annotation.*;
 public class  UserController {
 
     private final UserService userService;
+    private final ModelMapper modelMapper;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, ModelMapper modelMapper) {
         this.userService = userService;
+        this.modelMapper = modelMapper;
     }
 
     /**
      * Создает нового пользователя.
      *
-     * @param user объект пользователя для сохранения
-     * @return сохраненный объект пользователя
+     * @param userDTO dto пользователя для сохранения
+     * @return сохраненный dto пользователя
      */
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User savedUser = userService.saveUser(user);
-        return ResponseEntity.ok(savedUser);
+    public ResponseEntity<UserDTO> createUser(@RequestBody @Valid UserDTO userDTO) {
+        User savedUser = userService.saveUser(convertToEntity(userDTO));
+        return ResponseEntity.ok(convertToDto(savedUser));
     }
 
     /**
-     * Получает пользователя по его идентификатору.
+     * Получает dto пользователя по его идентификатору.
      *
      * @param id идентификатор пользователя
-     * @return объект пользователя, если найден, или Not Found
+     * @return dto пользователя, если найден, или Not Found
      */
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(convertToDto(user));
     }
 
     /**
@@ -60,5 +65,12 @@ public class  UserController {
         }
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private User convertToEntity(UserDTO userDTO) {
+        return modelMapper.map(userDTO, User.class);
+    }
+    private UserDTO convertToDto(User user) {
+        return modelMapper.map(user, UserDTO.class);
     }
 }
