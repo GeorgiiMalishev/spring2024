@@ -8,6 +8,7 @@ import my.spring2024.infrastructure.ReviewRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Сервис для управления отзывами в приложении.
@@ -62,6 +63,29 @@ public class ReviewService {
     public void deleteReview(Long id) {
         reviewRepository.deleteById(id);
         log.info("Удален отзыв с id {}", id);
+    }
+
+    /**
+     * Обновляет существующий отзыв в базе данных.
+     * Проверяет валидность оценки отзыва перед обновлением.
+     *
+     * @param id      Идентификатор отзыва, который нужно обновить.
+     * @param review Обновленные данные отзыва.
+     * @return Обновленный отзыв, или null, если отзыв не найден или оценка отзыва невалидна.
+     */
+    public Review updateReview(Long id, Review review) {
+        Optional<Review> existingReview = reviewRepository.findById(id);
+        if (existingReview.isPresent()) {
+            Review updatedReview = existingReview.get();
+            updatedReview.setRating(review.getRating());
+            updatedReview.setText(review.getText());
+            reviewRepository.save(updatedReview);
+            log.info("Обновлен отзыв с id {}", id);
+            return updatedReview;
+        } else {
+            log.info("Не удалось найти отзыв с id {} для обновления", id);
+            return null;
+        }
     }
 
     /**

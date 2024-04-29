@@ -23,11 +23,13 @@ public class Review {
     /**
      * Оценка от 1 до 5
      */
+    @Setter
     private int rating;
 
     /**
      * Текст отзыва
      */
+    @Setter
     private String text;
 
     /**
