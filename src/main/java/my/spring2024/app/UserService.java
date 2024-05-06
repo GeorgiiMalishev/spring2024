@@ -1,10 +1,7 @@
 package my.spring2024.app;
 
 import lombok.extern.slf4j.Slf4j;
-import my.spring2024.domain.Project;
-import my.spring2024.domain.Review;
-import my.spring2024.domain.TeamRoleTag;
-import my.spring2024.domain.User;
+import my.spring2024.domain.*;
 import my.spring2024.infrastructure.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -172,5 +169,43 @@ public class UserService {
         user.getCurrentProjects().remove(project);
         user.getPastProjects().add(project);
         saveUser(user);
+    }
+
+    /**
+     * Дает пользователю права администратора
+     * @param userId идентификатор пользователя
+     */
+    public void setAdminRole(long userId) {
+        User user = getUserById(userId);
+        if (user == null)
+            return;
+
+        if (user.getRole() == Role.ADMIN) {
+            log.info("Пользователь с id {} уже имеет роль администратора.", userId);
+            return;
+        }
+
+        user.setRole(Role.ADMIN);
+        userRepository.save(user);
+        log.info("Пользователь с id {} получил права администратора", userId);
+        }
+
+    /**
+     * Отнимает у пользователя права администратора.
+     * @param userId идентификатор пользователя
+     */
+    public void removeAdminRole(long userId) {
+        User user = getUserById(userId);
+        if (user == null)
+            return;
+
+        if (user.getRole() != Role.ADMIN) {
+            log.info("Пользователь с id {} не имеет роли администратора", userId);
+            return;
+        }
+
+        user.setRole(Role.USER);
+        userRepository.save(user);
+        log.info("У пользователя с id {} отнята роль администратора", userId);
     }
 }

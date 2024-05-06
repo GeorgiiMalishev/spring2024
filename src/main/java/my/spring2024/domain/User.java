@@ -47,7 +47,7 @@ public class User {
      * Роль в команде
      */
     @Enumerated
-    private TeamRoleTag role;
+    private TeamRoleTag teamRole;
     /**
      * Список постов, созданных пользователем.
      */
@@ -87,4 +87,10 @@ public class User {
     public User(Long id) {
         this.id = id;
     }
+
+    @NonNull
+    @Getter
+    @Setter
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
 }

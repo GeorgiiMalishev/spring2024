@@ -3,10 +3,7 @@ package my.spring2024;
 import my.spring2024.app.ProjectService;
 import my.spring2024.app.UserService;
 import my.spring2024.app.ReviewService;
-import my.spring2024.domain.Project;
-import my.spring2024.domain.Review;
-import my.spring2024.domain.TeamRoleTag;
-import my.spring2024.domain.User;
+import my.spring2024.domain.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -61,7 +58,7 @@ public class UserServiceTest {
     @Test
     public void testGetUsersByRole() {
         TeamRoleTag role = TeamRoleTag.DEVELOPER;
-        userService.saveUser(User.builder().role(role).build());
+        userService.saveUser(User.builder().teamRole(role).build());
         List<User> users = userService.getUsersByRole(role);
         assertEquals(1, users.size());
     }
@@ -105,5 +102,31 @@ public class UserServiceTest {
         userService.removeReviewFromUsers(sender.getId(), receiver.getId(), review);
         assertEquals(0, reviewService.getReviewsByReceiver(receiver).size());
         assertEquals(0, reviewService.getReviewsBySender(sender).size());
+    }
+
+    @Test
+    public void testSetAdminRole() {
+        User user = userService.saveUser(new User());
+        userService.setAdminRole(user.getId());
+        User updatedUser = userService.getUserById(user.getId());
+        assertEquals(Role.ADMIN, updatedUser.getRole());
+    }
+
+    @Test
+    public void testRemoveAdminRole() {
+        User user = userService.saveUser(new User());
+        user.setRole(Role.ADMIN);
+        userService.saveUser(user);
+        userService.removeAdminRole(user.getId());
+        User updatedUser = userService.getUserById(user.getId());
+        assertEquals(Role.USER, updatedUser.getRole());
+    }
+
+    @Test
+    public void testRemoveAdminRoleForNonAdminUser() {
+        User user = userService.saveUser(new User());
+        userService.removeAdminRole(user.getId());
+        User updatedUser = userService.getUserById(user.getId());
+        assertEquals(Role.USER, updatedUser.getRole());
     }
 }
