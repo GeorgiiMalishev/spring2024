@@ -40,3 +40,22 @@ spring:
     url: jdbc:h2:mem:test
     username: root
     password: root
+
+  security:
+    oauth2:
+      client:
+        registration:
+          yandex:
+            provider: yandex
+            clientId: b73fa1114147439ebbcb2ae2bd52c648
+            clientSecret: a8a843cd3ca34129a7ed6c1d340c873c
+            redirect-uri: http://localhost:8080/login/oauth2/yandex
+            authorizationGrantType: authorization_code
+            clientName: Yandex
+
+        provider:
+          yandex:
+            authorization-uri: https://oauth.yandex.ru/authorize
+            token-uri: https://oauth.yandex.ru/token
+            user-name-attribute: default_email
+            userInfoUri: https://login.yandex.ru/info
