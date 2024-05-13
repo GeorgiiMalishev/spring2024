@@ -73,4 +73,27 @@ public class ReviewServiceTest {
         }
         assertEquals(3, reviewService.getAverageRating(receiver));
     }
+
+    @Test
+    public void testUpdateReviewSuccess() {
+        User user = userService.saveUser(new User());
+        Review initialReview = reviewService.saveReview(new Review(null, 5, "text", user, new User(), null));
+        Long reviewId = reviewService.saveReview(initialReview).getId();
+
+        Review updatedReview = new Review(null, 4, "Updated Text", user, null, null);
+        Review result = reviewService.updateReview(reviewId, updatedReview);
+
+        assertNotNull(result);
+        assertEquals(initialReview.getId(), result.getId());
+        assertEquals(updatedReview.getRating(), result.getRating());
+        assertEquals(updatedReview.getText(), result.getText());
+    }
+
+    @Test
+    public void testUpdateReviewNotFound() {
+        Review nonExistentReview = Review.builder().rating(3).build();
+        Review nonExistentResult = reviewService.updateReview(999L, nonExistentReview);
+
+        assertNull(nonExistentResult);
+    }
 }

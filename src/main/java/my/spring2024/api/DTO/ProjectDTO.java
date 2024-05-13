@@ -19,7 +19,7 @@ public class ProjectDTO {
 
     private URL link;
 
-    @NotNull(message = "At least one user is required")
+    @NotEmpty(message = "At least one user is required")
     private List<User> users;
 
     @NotNull(message = "Leader is required")

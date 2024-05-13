@@ -122,22 +122,6 @@ public class ReviewService {
                 .orElse(0);
     }
 
-    /**
-     * Добавляет отправителя к отзыву.
-     *
-     * @param sender   Отправитель отзыва, который должен быть добавлен к отзыву.
-     * @param review   Отзыв, к которому добавляются отправитель и получатель.
-     */
-    public void addSenderToReview(User sender, Review review){
-        if(sender.getSentReviews().contains(review)){
-            review.setSender(sender);
-            log.info("Добавлен отправитель с id {} к отзыву {}", sender.getId(), review.getId());
-        } else {
-            log.info("Не уддалось добавить отправителя с id {} к отзыву {}, отправитель не имеет этого отзыва", sender.getId(), review.getId());
-        }
-
-        reviewRepository.save(review);
-    }
 
     /**
      * Добавляет получателя к отзыву.

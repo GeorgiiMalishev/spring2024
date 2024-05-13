@@ -35,7 +35,6 @@ public class Review {
     /**
      * Отправитель отзыва
      */
-    @Setter
     @ManyToOne
     private User sender;
 

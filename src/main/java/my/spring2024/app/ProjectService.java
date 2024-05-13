@@ -137,7 +137,6 @@ public class ProjectService {
 
         sender.getSentReviews().add(review);
         project.getReviews().add(review);
-        reviewService.addSenderToReview(sender, review);
         reviewService.addProjectToReview(project, review);
         reviewService.saveReview(review);
         log.info("Добавление отзыва {} к отправителю с id {} и проекту с id {}", review.getId(), senderId, projectId);

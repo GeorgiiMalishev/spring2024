@@ -124,7 +124,6 @@ public class UserService {
 
         sender.getSentReviews().add(review);
         receiver.getReceivedReviews().add(review);
-        reviewService.addSenderToReview(sender, review);
         reviewService.addReceiverToReview(receiver, review);
         reviewService.saveReview(review);
         log.info("Добавление отзыва {} к отправителю с id {} и получателю с id {}", review.getId(), senderId, receiverId);
