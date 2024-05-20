@@ -76,7 +76,7 @@ public class User {
      * Список проектов, в которых участвовал ранее пользователь
      */
     @ManyToMany
-    private List<Project> pastProjects = new ArrayList<Project>();;
+    private List<Project> pastProjects = new ArrayList<Project>();
 
     /**
      * Конструктор класса User.

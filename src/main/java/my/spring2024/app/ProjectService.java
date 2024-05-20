@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 
 /**
  * Сервис для управления проектами в приложении.
@@ -128,12 +130,13 @@ public class ProjectService {
      * @param review Отзыв, который нужно добавить.
      */
     public void addReviewToProject(Long senderId, Long projectId, Review review) {
-        User sender = userService.getUserById(senderId);
+        Optional<User> optionalSender = userService.getUserById(senderId);
         Project project = getProjectById(projectId);
-        if (sender == null || project == null) {
-            log.info("Не удалось добавить отзыв {}: сущность с id {} не найдена", review.getId(), sender == null ? senderId : projectId);
+        if (optionalSender.isEmpty() || project == null) {
+            log.warn("Не удалось добавить отзыв {}: сущность с id {} не найдена", review.getId(), optionalSender.isEmpty() ? senderId : projectId);
             return;
         }
+        User sender = optionalSender.get();
 
         sender.getSentReviews().add(review);
         project.getReviews().add(review);
@@ -152,13 +155,14 @@ public class ProjectService {
      * @param review Отзыв, который нужно удалить.
      */
     public void removeReviewFromProject(Long senderId, Long projectId, Review review) {
-        User sender = userService.getUserById(senderId);
+        Optional<User> optionalSender = userService.getUserById(senderId);
         Project project = getProjectById(projectId);
-        if (sender == null || project == null) {
-            log.info("Не удалось удалить отзыв {}: сущность с id {} не найдена", review.getId(), sender == null ? senderId : projectId);
+        if (optionalSender.isEmpty() || project == null) {
+            log.warn("Не удалось удалить отзыв {}: сущность с id {} не найдена", review.getId(), optionalSender.isEmpty() ? senderId : projectId);
             return;
         }
 
+        User sender = optionalSender.get();
         if (!sender.getSentReviews().contains(review) || !project.getReviews().contains(review)) {
             log.info("Отзыв {} не найден у сущности с id {} при попытке удаления"
                     , review.getId(), !sender.getSentReviews().contains(review) ? senderId : projectId);

@@ -6,6 +6,7 @@ import my.spring2024.infrastructure.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Сервис для управления пользователями в приложении.
@@ -36,16 +37,14 @@ public class UserService {
      * @param id Идентификатор пользователя
      * @return пользователя; если пользователь не найден, то null
      */
-    public User getUserById(Long id) {
+    public Optional<User> getUserById(Long id) {
         var user = userRepository.findById(id);
-        if (user.isEmpty()){
-            log.info("Не удалось найти пользователя с id {}", id);
-            return null;
+        if (user.isEmpty()) {
+            log.warn("Не удалось найти пользователя с id {}", id);
         } else {
             log.info("Пользователь с id {} найден", id);
-            return user.get();
         }
-
+        return user;
     }
 
     /**
@@ -68,19 +67,19 @@ public class UserService {
             log.info("Найден пользователь с email {}", email);
             return user;
         } else{
-            log.info("Не удалось найти пользователя с email {}", email);
+            log.warn("Не удалось найти пользователя с email {}", email);
             return null;
         }
     }
 
     /**
      * Возвращает список пользователей с заданной ролью в команде.
-     * @param role Роль в команде.
+     * @param teamRole Роль в команде.
      * @return Список пользователей с заданной ролью.
      */
-    public List<User> getUsersByRole(TeamRoleTag role) {
-        var users = userRepository.findAllByRole(role);
-        log.info("Найдено {} пользователей с ролью {}", users.size(), role);
+    public List<User> getUsersByTeamRole(TeamRoleTag teamRole) {
+        var users = userRepository.findAllByTeamRole(teamRole);
+        log.info("Найдено {} пользователей с ролью {}", users.size(), teamRole);
         return users;
     }
 
@@ -115,12 +114,16 @@ public class UserService {
      * @param review Отзыв, который нужно добавить.
      */
     public void addReviewToUsers(Long senderId, Long receiverId, Review review) {
-        User sender = getUserById(senderId);
-        User receiver = getUserById(receiverId);
-        if (sender == null || receiver == null) {
-            log.info("Не удалось добавить отзыв {} к пользователям: пользователь с id {} не найден", review.getId(), sender == null ? senderId : receiverId);
+        Optional<User> optionalSender = getUserById(senderId);
+        Optional<User> optionalReceiver = getUserById(receiverId);
+
+        if (optionalSender.isEmpty() || optionalReceiver.isEmpty()) {
+            log.warn("Не удалось добавить отзыв {} к пользователям: пользователь с id {} не найден", review.getId(), optionalSender.isEmpty() ? senderId : receiverId);
             return;
         }
+
+        User sender = optionalSender.get();
+        User receiver = optionalReceiver.get();
 
         sender.getSentReviews().add(review);
         receiver.getReceivedReviews().add(review);
@@ -139,16 +142,19 @@ public class UserService {
      * @param review Отзыв, который нужно удалить.
      */
     public void removeReviewFromUsers(Long senderId, Long receiverId, Review review) {
-        User sender = getUserById(senderId);
-        User receiver = getUserById(receiverId);
-        if (sender == null || receiver == null) {
-            log.info("Не удалось удалить отзыв {}: пользователь с id {} не найден", review.getId(), sender == null ? senderId : receiverId);
+        Optional<User> optionalSender = getUserById(senderId);
+        Optional<User> optionalReceiver = getUserById(receiverId);
+
+        if (optionalSender.isEmpty() || optionalReceiver.isEmpty()) {
+            log.warn("Не удалось удалить отзыв {}: пользователь с id {} не найден", review.getId(), optionalSender.isEmpty() ? senderId : receiverId);
             return;
         }
 
+        User sender = optionalSender.get();
+        User receiver = optionalReceiver.get();
+
         if (!sender.getSentReviews().contains(review) || !receiver.getReceivedReviews().contains(review)) {
-            log.info("Отзыв {} не найден у пользователя с id {} при попытке удаления"
-                    , review.getId(), !sender.getSentReviews().contains(review) ? senderId : receiverId);
+            log.warn("Отзыв {} не найден у пользователя с id {} при попытке удаления", review.getId(), !sender.getSentReviews().contains(review) ? senderId : receiverId);
             return;
         }
 
@@ -157,6 +163,7 @@ public class UserService {
         reviewService.deleteReview(review.getId());
         log.info("Удаление отзыва {} у отправителя с id {} и получателя с id {}", review.getId(), senderId, receiverId);
     }
+
 
     /**
      * Перемещает проект из текущих в прошлые проекты пользователя.
@@ -175,12 +182,13 @@ public class UserService {
      * @param userId идентификатор пользователя
      */
     public void setAdminRole(long userId) {
-        User user = getUserById(userId);
-        if (user == null)
+        Optional<User> optionalUser = getUserById(userId);
+        if (optionalUser.isEmpty())
             return;
 
+        User user = optionalUser.get();
         if (user.getRole() == Role.ADMIN) {
-            log.info("Пользователь с id {} уже имеет роль администратора.", userId);
+            log.warn("Пользователь с id {} уже имеет роль администратора.", userId);
             return;
         }
 
@@ -194,12 +202,13 @@ public class UserService {
      * @param userId идентификатор пользователя
      */
     public void removeAdminRole(long userId) {
-        User user = getUserById(userId);
-        if (user == null)
+        Optional<User> optionalUser = getUserById(userId);
+        if (optionalUser.isEmpty())
             return;
 
+        User user = optionalUser.get();
         if (user.getRole() != Role.ADMIN) {
-            log.info("Пользователь с id {} не имеет роли администратора", userId);
+            log.warn("Пользователь с id {} не имеет роли администратора", userId);
             return;
         }
 

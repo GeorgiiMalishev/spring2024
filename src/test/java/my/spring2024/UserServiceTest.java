@@ -34,7 +34,7 @@ public class UserServiceTest {
     public void testGetUserById() {
         User user = new User();
         userService.saveUser(user);
-        User returnedUser = userService.getUserById(user.getId());
+        User returnedUser = userService.getUserById(user.getId()).get();
         assertEquals(user.getId(), returnedUser.getId());
     }
 
@@ -43,7 +43,7 @@ public class UserServiceTest {
         User user = new User();
         var id = userService.saveUser(user).getId();
         userService.deleteUser(id);
-        assertNull(userService.getUserById(id));
+        assertTrue(userService.getUserById(id).isEmpty());
     }
 
     @Test
@@ -56,10 +56,25 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetUsersByRole() {
+    public void testGetUsersByTeamRole() {
         TeamRoleTag role = TeamRoleTag.DEVELOPER;
-        userService.saveUser(User.builder().teamRole(role).build());
-        List<User> users = userService.getUsersByRole(role);
+        User user = new User(
+                null,
+                "John",
+                "Doe",
+                "test@example.com",
+                null,
+                role,
+                null,
+                null,
+                null,
+                null,
+                null,
+                Role.USER
+        );
+
+        userService.saveUser(user);
+        List<User> users = userService.getUsersByTeamRole(role);
         assertEquals(1, users.size());
     }
 
@@ -84,13 +99,13 @@ public class UserServiceTest {
 
     @Test
     public void testAddReviewToUsers() {
-        var sender= userService.saveUser(new User());
+        var sender = userService.saveUser(new User());
         var receiver = userService.saveUser(new User());
         Review review = reviewService.saveReview(Review.builder().rating(5).build());
         userService.addReviewToUsers(sender.getId(), receiver.getId(), review);
 
-        review = reviewService.getReviewById(review.getId());
-        assertEquals(review.getSender(), sender);
+        Review savedReview = reviewService.getReviewById(review.getId());
+        assertEquals(savedReview.getSender(), sender);
     }
 
     @Test
@@ -108,7 +123,7 @@ public class UserServiceTest {
     public void testSetAdminRole() {
         User user = userService.saveUser(new User());
         userService.setAdminRole(user.getId());
-        User updatedUser = userService.getUserById(user.getId());
+        User updatedUser = userService.getUserById(user.getId()).get();
         assertEquals(Role.ADMIN, updatedUser.getRole());
     }
 
@@ -118,7 +133,7 @@ public class UserServiceTest {
         user.setRole(Role.ADMIN);
         userService.saveUser(user);
         userService.removeAdminRole(user.getId());
-        User updatedUser = userService.getUserById(user.getId());
+        User updatedUser = userService.getUserById(user.getId()).get();
         assertEquals(Role.USER, updatedUser.getRole());
     }
 
@@ -126,7 +141,7 @@ public class UserServiceTest {
     public void testRemoveAdminRoleForNonAdminUser() {
         User user = userService.saveUser(new User());
         userService.removeAdminRole(user.getId());
-        User updatedUser = userService.getUserById(user.getId());
+        User updatedUser = userService.getUserById(user.getId()).get();
         assertEquals(Role.USER, updatedUser.getRole());
     }
 }

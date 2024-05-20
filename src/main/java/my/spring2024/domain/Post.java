@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,6 +28,7 @@ public class Post {
     /**
      * Текст поста.
      */
+    @Setter
     private String text;
 
     /**
@@ -33,11 +36,11 @@ public class Post {
      */
     @ElementCollection(targetClass = TeamRoleTag.class)
     @Enumerated(EnumType.STRING)
-    private List<TeamRoleTag> teamRoleTags;
+    private List<TeamRoleTag> teamRoleTags = new ArrayList<TeamRoleTag>();
 
     /**
      * Список пользователей, откликнувшихся на пост.
      */
     @ManyToMany
-    private List<User> respondents;
+    private List<User> respondents = new ArrayList<User>();
 }

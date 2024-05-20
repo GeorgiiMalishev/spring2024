@@ -8,6 +8,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 /**
  * Контроллер для управления пользователями.
  * Предоставляет методы для создания, получения, удаления пользователей.
@@ -44,11 +46,11 @@ public class  UserController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        User user = userService.getUserById(id);
-        if (user == null) {
+        Optional<User> user = userService.getUserById(id);
+        if (user.isEmpty()){
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(convertToDto(user));
+        return ResponseEntity.ok(convertToDto(user.get()));
     }
 
     /**
