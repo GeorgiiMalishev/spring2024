@@ -7,12 +7,13 @@ import my.spring2024.domain.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Sql(scripts = {"/create_user_schema.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {"/insert_user_data.sql"})
 @DataJpaTest
 @ActiveProfiles("test")
 public class UserServiceTest {
@@ -48,32 +49,13 @@ public class UserServiceTest {
 
     @Test
     public void testGetUserByEmail(){
-        var email = "example@mail.com";
-        var user = User.builder().email(email).build();
-        userService.saveUser(user);
-        var returnedUser = userService.getUserByEmail(email);
-        assertEquals(user.getId(), returnedUser.getId());
+        var email = "john.doe@example.com";
+        assertNotNull(userService.getUserByEmail("john.doe@example.com"));
     }
 
     @Test
     public void testGetUsersByTeamRole() {
         TeamRoleTag role = TeamRoleTag.DEVELOPER;
-        User user = new User(
-                null,
-                "John",
-                "Doe",
-                "test@example.com",
-                null,
-                role,
-                null,
-                null,
-                null,
-                null,
-                null,
-                Role.USER
-        );
-
-        userService.saveUser(user);
         List<User> users = userService.getUsersByTeamRole(role);
         assertEquals(1, users.size());
     }
@@ -105,7 +87,7 @@ public class UserServiceTest {
         userService.addReviewToUsers(sender.getId(), receiver.getId(), review);
 
         Review savedReview = reviewService.getReviewById(review.getId());
-        assertEquals(savedReview.getSender(), sender);
+        assertEquals(sender, savedReview.getSender());
     }
 
     @Test
@@ -143,5 +125,10 @@ public class UserServiceTest {
         userService.removeAdminRole(user.getId());
         User updatedUser = userService.getUserById(user.getId()).get();
         assertEquals(Role.USER, updatedUser.getRole());
+    }
+
+    @Test
+    public void testGetAllUsers(){
+        assertEquals(1, userService.getAllUsers(null, Pageable.unpaged()).getTotalElements());
     }
 }

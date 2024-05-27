@@ -9,6 +9,9 @@ import my.spring2024.infrastructure.ProjectRepository;
 import my.spring2024.infrastructure.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
@@ -48,15 +51,14 @@ public class ProjectService {
      * @param id Идентификатор проекта
      * @return проект; если проект не найден, то null
      */
-    public Project getProjectById(Long id) {
+    public Optional<Project> getProjectById(Long id) {
         var project = projectRepository.findById(id);
         if (project.isEmpty()){
             log.info("Не удалось найти проект с id {}", id);
-            return null;
         } else {
             log.info("Проект с id {} найден", id);
-            return project.get();
         }
+        return project;
     }
 
     /**
@@ -76,12 +78,12 @@ public class ProjectService {
      * @return Обновленный проект с добавленным пользователем.
      */
     public Project addUserToProject(Long projectId, User user) {
-        Project project = getProjectById(projectId);
-        if (project == null) {
+        Optional<Project> projectOptional = getProjectById(projectId);
+        if (projectOptional.isEmpty()) {
             log.info("Не удалось добавить пользователя {} к проекту с id {}: проект не найден", user.getId(), projectId);
             return null;
         }
-
+        Project project = projectOptional.get();
         if (!project.getUsers().contains(user)) {
             project.getUsers().add(user);
             user.getCurrentProjects().add(project);
@@ -103,9 +105,10 @@ public class ProjectService {
      * @return Обновленный проект без удаленного пользователя, или null, если проект не найден.
      */
     public Project removeUserFromProject(Long projectId, User user, User initiator) {
-        Project project = getProjectById(projectId);
-        if (project == null) return null;
+        Optional<Project> projectOptional = getProjectById(projectId);
+        if (projectOptional.isEmpty()) return null;
 
+        Project project = projectOptional.get();
         if (!initiator.equals(user) && !project.getLeader().equals(initiator)) {
             log.info("Пользователь {} не удален из проекта {}, так как у инициатора {} нет прав", user.getId(), projectId, initiator.getId());
             return project;
@@ -131,15 +134,17 @@ public class ProjectService {
      */
     public void addReviewToProject(Long senderId, Long projectId, Review review) {
         Optional<User> optionalSender = userService.getUserById(senderId);
-        Project project = getProjectById(projectId);
-        if (optionalSender.isEmpty() || project == null) {
+        Optional<Project> projectOptional = getProjectById(projectId);
+        if (optionalSender.isEmpty() || projectOptional.isEmpty()) {
             log.warn("Не удалось добавить отзыв {}: сущность с id {} не найдена", review.getId(), optionalSender.isEmpty() ? senderId : projectId);
             return;
         }
+        Project project = projectOptional.get();
         User sender = optionalSender.get();
 
         sender.getSentReviews().add(review);
         project.getReviews().add(review);
+        reviewService.addSenderToReview(sender, review);
         reviewService.addProjectToReview(project, review);
         reviewService.saveReview(review);
         log.info("Добавление отзыва {} к отправителю с id {} и проекту с id {}", review.getId(), senderId, projectId);
@@ -156,12 +161,12 @@ public class ProjectService {
      */
     public void removeReviewFromProject(Long senderId, Long projectId, Review review) {
         Optional<User> optionalSender = userService.getUserById(senderId);
-        Project project = getProjectById(projectId);
-        if (optionalSender.isEmpty() || project == null) {
+        Optional<Project> projectOptional = getProjectById(projectId);
+        if (optionalSender.isEmpty() || projectOptional.isEmpty()) {
             log.warn("Не удалось удалить отзыв {}: сущность с id {} не найдена", review.getId(), optionalSender.isEmpty() ? senderId : projectId);
             return;
         }
-
+        Project project = projectOptional.get();
         User sender = optionalSender.get();
         if (!sender.getSentReviews().contains(review) || !project.getReviews().contains(review)) {
             log.info("Отзыв {} не найден у сущности с id {} при попытке удаления"
@@ -174,5 +179,16 @@ public class ProjectService {
         log.info("Удаление отзыва {} у отправителя с id {} и проекта с id {}", review.getId(), senderId, projectId);
     }
 
+    /**
+     * Возвращает все проекты с возможностью пагинации и фильтрации.
+     * @param spec спецификация для фильтрации
+     * @param pageable объект для пагинации
+     * @return страница проектов
+     */
+    public Page<Project> getAllProjects(Specification<Project> spec, Pageable pageable) {
+        var projects = projectRepository.findAll(spec, pageable);
+        log.info("Найдено {} проектов", projects.getTotalElements());
+        return projects;
+    }
 }
 

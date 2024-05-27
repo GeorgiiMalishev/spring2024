@@ -5,8 +5,13 @@ import my.spring2024.api.DTO.ProjectDTO;
 import my.spring2024.app.ProjectService;
 import my.spring2024.domain.Project;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 /**
  * Контроллер для управления пользователями.
@@ -44,11 +49,8 @@ public class ProjectController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ProjectDTO> getProjectById(@PathVariable Long id) {
-        Project project = projectService.getProjectById(id);
-        if (project == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(convertToDto(project));
+        Optional<Project> projectOptional = projectService.getProjectById(id);
+        return projectOptional.map(project -> ResponseEntity.ok(convertToDto(project))).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
@@ -60,13 +62,24 @@ public class ProjectController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
-        if (projectService.getProjectById(id) == null){
+        if (projectService.getProjectById(id).isEmpty()){
             return ResponseEntity.notFound().build();
         }
         projectService.deleteProject(id);
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     Возвращает все посты с возможностью пагинации и фильтрации.
+     * @param spec спецификация для фильтрации
+     * @param pageable объект для пагинации
+     * @return страница постов
+     */
+    @GetMapping
+    public ResponseEntity<Page<Project>> getAllProjects(Specification<Project> spec, Pageable pageable) {
+        Page<Project> projects = projectService.getAllProjects(spec, pageable);
+        return ResponseEntity.ok(projects);
+    }
     private Project convertToEntity(ProjectDTO projectDTO) {
         return modelMapper.map(projectDTO, Project.class);
     }

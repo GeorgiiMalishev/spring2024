@@ -47,10 +47,10 @@ public class  UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         Optional<User> user = userService.getUserById(id);
-        if (user.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(convertToDto(user.get()));
+        return userService.getUserById(id)
+                .map(this::convertToDto)
+                .map(ResponseEntity::ok)
+                .orElseGet(()-> ResponseEntity.notFound().build());
     }
 
     /**
@@ -62,11 +62,26 @@ public class  UserController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        if (userService.getUserById(id) == null){
+        if (userService.getUserById(id).isEmpty()){
             return ResponseEntity.notFound().build();
         }
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Получает dto пользователя по его email.
+     *
+     * @param email email пользователя
+     * @return dto пользователя, если найден, или Not Found
+     */
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
+        User user = userService.getUserByEmail(email);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(convertToDto(user));
     }
 
     private User convertToEntity(UserDTO userDTO) {

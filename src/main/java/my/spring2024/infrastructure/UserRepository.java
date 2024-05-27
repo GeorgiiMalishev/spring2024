@@ -2,14 +2,16 @@ package my.spring2024.infrastructure;
 
 import java.util.List;
 
+import my.spring2024.domain.Post;
 import my.spring2024.domain.Review;
 import my.spring2024.domain.TeamRoleTag;
 import my.spring2024.domain.User;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>{
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     User findByEmail(String name);
     List<User> findAllByTeamRole(TeamRoleTag role);
     List<User> findAllByCurrentProjects_Id(Long projectId);

@@ -9,6 +9,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -16,7 +19,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Sql(scripts = {"/create_post_schema.sql", "/insert_post_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {"/insert_post_data.sql"})
 @DataJpaTest
 @ActiveProfiles("test")
 public class PostServiceTest {
@@ -66,12 +69,9 @@ public class PostServiceTest {
 
     @Test
     public void testGetAllPosts() {
-        Post post1 = new Post();
-        postService.savePost(post1);
-        Post post2 = new Post();
-        postService.savePost(post2);
-        List<Post> posts = postService.getAllPosts();
-        assertTrue(posts.size() >= 2);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Post> posts = postService.getAllPosts(null, pageable);
+        assertEquals(2, posts.getTotalElements());
     }
 
     @Test

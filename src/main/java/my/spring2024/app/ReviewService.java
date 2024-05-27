@@ -5,6 +5,10 @@ import my.spring2024.domain.Project;
 import my.spring2024.domain.Review;
 import my.spring2024.domain.User;
 import my.spring2024.infrastructure.ReviewRepository;
+import my.spring2024.infrastructure.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -91,11 +95,33 @@ public class ReviewService {
     /**
      * Возвращает список всех отзывов, полученных конкретным пользователем.
      *
-     * @param receiver Пользователь, отзывы на которого нужно получить.
+     * @param user пользователь, отзывы на которого нужно получить.
      * @return Список отзывов, или пустой список, если отзывов нет.
      */
-    public List<Review> getReviewsByReceiver(User receiver) {
-        return reviewRepository.findAllByReceiver(receiver);
+    public List<Review> getReviewsByReceiver(User user) {
+        if(user == null)
+        {
+            log.info("Пользователь не найден, при попытке получения списка отзывов, полученных конкретным пользователем");
+            return null;
+        }
+        log.info("Получен список отзывов, полученных конкретным пользователем с id {}", user.getId());
+        return reviewRepository.findAllByReceiver(user);
+    }
+
+    /**
+     * Возвращает список всех отзывов, полученных проектом.
+     *
+     * @param project проект, отзывы на который нужно получить.
+     * @return Список отзывов, или пустой список, если отзывов нет.
+     */
+    public List<Review> getReviewsByProject(Project project) {
+        if(project == null)
+        {
+            log.info("Проект не найден, при попытке получения списка отзывов, полученных конкретным проектом");
+            return null;
+        }
+        log.info("Получен список отзывов, полученных конкретным проектом с id {}", project.getId());
+        return reviewRepository.findAllByProject(project);
     }
 
     /**
@@ -141,6 +167,23 @@ public class ReviewService {
     }
 
     /**
+     * Добавляет отправителя к отзыву.
+     *
+     * @param sender Отправитель отзыва, который должен быть добавлен к отзыву.
+     * @param review Отзыв, к которому добавляется отправитель.
+     */
+    public void addSenderToReview(User sender, Review review) {
+        if (sender.getSentReviews().contains(review)) {
+            review.setSender(sender);
+            log.info("Добавлен отправитель с id {} к отзыву {}", sender.getId(), review.getId());
+        } else {
+            log.info("Не удалось добавить отправителя с id {} к отзыву {}, отправитель не имеет этого отзыва", sender.getId(), review.getId());
+        }
+
+        reviewRepository.save(review);
+    }
+
+    /**
      * Добавляет проект к отзыву.
      *
      * @param project Получатель отзыва, который должен быть добавлен к отзыву.
@@ -155,5 +198,17 @@ public class ReviewService {
         }
 
         reviewRepository.save(review);
+    }
+
+    /**
+     * Возвращает всех отзывов с возможностью пагинации и фильтрации.
+     * @param spec спецификация для фильтрации
+     * @param pageable объект для пагинации
+     * @return страница отзывов
+     */
+    public Page<Review> getAllReviews(Specification<Review> spec, Pageable pageable) {
+        var reviews = reviewRepository.findAll(spec, pageable);
+        log.info("Найдено {} отзывов", reviews.getTotalElements());
+        return reviews;
     }
 }

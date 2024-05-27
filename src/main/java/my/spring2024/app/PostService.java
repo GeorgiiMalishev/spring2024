@@ -5,6 +5,9 @@ import my.spring2024.domain.Post;
 import my.spring2024.domain.User;
 import my.spring2024.infrastructure.PostRepository;
 import my.spring2024.infrastructure.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,12 +55,14 @@ public class PostService {
     }
 
     /**
-     * Возвращает все посты.
-     * @return список всех постов.
+     * Возвращает все посты с возможностью пагинации и фильтрации.
+     * @param spec спецификация для фильтрации
+     * @param pageable объект для пагинации
+     * @return страница постов
      */
-    public List<Post> getAllPosts() {
-        var posts = postRepository.findAll();
-        log.info("Найдено {} постов", posts.size());
+    public Page<Post> getAllPosts(Specification<Post> spec, Pageable pageable) {
+        var posts = postRepository.findAll(spec, pageable);
+        log.info("Найдено {} постов", posts.getTotalElements());
         return posts;
     }
 
@@ -95,18 +100,13 @@ public class PostService {
      * @param postId Идентификатор поста.
      * @param userId Идентификатор пользователя.
      * @return обновленный пост; если пост или пользователь не найдены, то null.
+     * @throws IllegalArgumentException если пост или пользователь не найдены.
      */
     public Post addRespondentToPost(Long postId, Long userId) {
-        Optional<Post> postOptional = postRepository.findById(postId);
-        Optional<User> userOptional = userRepository.findById(userId);
-
-        if (postOptional.isEmpty() || userOptional.isEmpty()) {
-            log.info("Не удалось добавить респондента к посту: пост с id {} или пользователь с id {} не найден", postId, userId);
-            return null;
-        }
-
-        Post post = postOptional.get();
-        User user = userOptional.get();
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Не удалось добавить респондента: пост с id " + postId + " не найден"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Не удалось добавить респондента: пользователь с id " + userId + " не найден"));
 
         post.getRespondents().add(user);
         postRepository.save(post);
@@ -119,18 +119,13 @@ public class PostService {
      * @param postId Идентификатор поста.
      * @param userId Идентификатор пользователя.
      * @return обновленный пост; если пост или пользователь не найдены, то null.
+     * @throws IllegalArgumentException если пост или пользователь не найдены.
      */
     public Post removeRespondentFromPost(Long postId, Long userId) {
-        Optional<Post> postOptional = postRepository.findById(postId);
-        Optional<User> userOptional = userRepository.findById(userId);
-
-        if (postOptional.isEmpty() || userOptional.isEmpty()) {
-            log.info("Не удалось удалить респондента из поста: пост с id {} или пользователь с id {} не найден", postId, userId);
-            return null;
-        }
-
-        Post post = postOptional.get();
-        User user = userOptional.get();
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Не удалось добавить респондента: пост с id " + postId + " не найден"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Не удалось добавить респондента: пользователь с id " + userId + " не найден"));
 
         if (!post.getRespondents().remove(user)) {
             log.info("Пользователь с id {} не найден среди респондентов поста с id {}", userId, postId);

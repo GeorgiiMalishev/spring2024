@@ -3,6 +3,9 @@ package my.spring2024.app;
 import lombok.extern.slf4j.Slf4j;
 import my.spring2024.domain.*;
 import my.spring2024.infrastructure.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -127,6 +130,7 @@ public class UserService {
 
         sender.getSentReviews().add(review);
         receiver.getReceivedReviews().add(review);
+        reviewService.addSenderToReview(sender, review);
         reviewService.addReceiverToReview(receiver, review);
         reviewService.saveReview(review);
         log.info("Добавление отзыва {} к отправителю с id {} и получателю с id {}", review.getId(), senderId, receiverId);
@@ -215,5 +219,17 @@ public class UserService {
         user.setRole(Role.USER);
         userRepository.save(user);
         log.info("У пользователя с id {} отнята роль администратора", userId);
+    }
+
+    /**
+     * Возвращает всех пользователей с возможностью пагинации и фильтрации.
+     * @param spec спецификация для фильтрации
+     * @param pageable объект для пагинации
+     * @return страница пользователей
+     */
+    public Page<User> getAllUsers(Specification<User> spec, Pageable pageable) {
+        var users = userRepository.findAll(spec, pageable);
+        log.info("Найдено {} пользователей", users.getTotalElements());
+        return users;
     }
 }

@@ -9,6 +9,7 @@ import my.spring2024.domain.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Sql(scripts = {"/create_project_schema.sql", "/insert_project_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {"/insert_project_data.sql"})
 @DataJpaTest
 @ActiveProfiles("test")
 public class ProjectServiceTest {
@@ -38,7 +39,7 @@ public class ProjectServiceTest {
     public void testGetProjectById() {
         Project project = new Project();
         projectService.saveProject(project);
-        Project returnedProject = projectService.getProjectById(project.getId());
+        Project returnedProject = projectService.getProjectById(project.getId()).get();
         assertEquals(project.getId(), returnedProject.getId());
     }
 
@@ -47,7 +48,7 @@ public class ProjectServiceTest {
         Project project = new Project();
         var id = projectService.saveProject(project).getId();
         projectService.deleteProject(id);
-        assertNull(projectService.getProjectById(id));
+        assertTrue(projectService.getProjectById(id).isEmpty());
     }
 
     @Test
@@ -73,7 +74,7 @@ public class ProjectServiceTest {
         User sender = userService.saveUser(new User());
         Review review = reviewService.saveReview(Review.builder().rating(5).build());
         projectService.addReviewToProject(sender.getId(), project.getId(), review);
-        assertTrue(projectService.getProjectById(project.getId()).getReviews().contains(review));
+        assertTrue(projectService.getProjectById(project.getId()).get().getReviews().contains(review));
     }
 
     @Test
@@ -83,6 +84,11 @@ public class ProjectServiceTest {
         Review review = reviewService.saveReview(Review.builder().rating(5).build());
         projectService.addReviewToProject(user.getId(), project.getId(), review);
         projectService.removeReviewFromProject(user.getId(), project.getId(), review);
-        assertFalse(projectService.getProjectById(project.getId()).getReviews().contains(review));
+        assertFalse(projectService.getProjectById(project.getId()).get().getReviews().contains(review));
+    }
+
+    @Test
+    public void testGetAllProjects(){
+        assertEquals(2, projectService.getAllProjects(null, Pageable.unpaged()).getTotalElements());
     }
 }
