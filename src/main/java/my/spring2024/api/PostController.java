@@ -30,7 +30,7 @@ public class PostController {
      * @param postDTO dto поста для сохранения
      * @return сохраненный dto поста
      */
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<PostDTO> createPost(@Valid @RequestBody PostDTO postDTO) {
         Post savedPost = postService.savePost(convertToEntity(postDTO));
         return ResponseEntity.ok(convertToDto(savedPost));

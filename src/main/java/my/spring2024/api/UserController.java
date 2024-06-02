@@ -32,7 +32,7 @@ public class  UserController {
      * @param userDTO dto пользователя для сохранения
      * @return сохраненный dto пользователя
      */
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<UserDTO> createUser(@RequestBody @Valid UserDTO userDTO) {
         User savedUser = userService.saveUser(convertToEntity(userDTO));
         return ResponseEntity.ok(convertToDto(savedUser));

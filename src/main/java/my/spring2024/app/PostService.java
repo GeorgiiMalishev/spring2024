@@ -136,4 +136,32 @@ public class PostService {
         log.info("Пользователь с id {} удален из респондентов поста с id {}", userId, postId);
         return post;
     }
+
+    /**
+     * Ищет посты по ключевым словам в тексте или заголовке.
+     * @param keyword ключевое слово для поиска.
+     * @param pageable объект для пагинации.
+     * @return страница постов, содержащих ключевое слово.
+     * @throws IllegalArgumentException если ключевое слово пустое или null
+     */
+    public Page<Post> searchPostsByKeyword(String keyword, Pageable pageable) {
+        if(keyword == null || keyword.isEmpty()) throw new IllegalArgumentException();
+        var posts = postRepository.findByTitleContainingOrTextContaining(keyword, keyword, pageable);
+        log.info("Найдено {} постов, содержащие ключевое слово '{}'", posts.getTotalElements(), keyword);
+        return posts;
+    }
+
+    /**
+     * Возвращает все посты, созданные пользователем.
+     * @param authorId Идентификатор автора.
+     * @param pageable объект для пагинации.
+     * @return страница постов, созданных пользователем.
+     */
+    public Page<Post> getPostsByAuthor(Long authorId, Pageable pageable) {
+        var author = userRepository.findById(authorId)
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь с id " + authorId + " не найден"));
+        var posts = postRepository.findByAuthor(author, pageable);
+        log.info("Найдено {} постов, созданных пользователем с id {}", posts.getTotalElements(), authorId);
+        return posts;
+    }
 }

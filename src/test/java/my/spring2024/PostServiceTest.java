@@ -105,4 +105,45 @@ public class PostServiceTest {
         Post updatedPost = postService.getPostById(postId);
         assertFalse(updatedPost.getRespondents().contains(user1));
     }
+
+    @Test
+    public void searchPostsByKeyword_shouldThrowExceptionForEmptyKeyword() {
+        String keyword = "";
+        Pageable pageable = PageRequest.of(0, 10);
+
+        assertThrows(IllegalArgumentException.class, () -> postService.searchPostsByKeyword(keyword, pageable));
+    }
+
+    @Test
+    public void searchPostsByTextKeyword() {
+        String keyword = "post";
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Post> result = postService.searchPostsByKeyword(keyword, pageable);
+
+        assertEquals(2, result.getTotalElements());
+    }
+
+    @Test
+    public void searchPostsByTitleKeyword() {
+        String keyword = "post1";
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Post> result = postService.searchPostsByKeyword(keyword, pageable);
+
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    public void getPostsByAuthor_shouldThrowExceptionForNonExistentAuthor() {
+        Long authorId = 1231234L;
+        Pageable pageable = PageRequest.of(0, 10);
+        assertThrows(IllegalArgumentException.class, () -> postService.getPostsByAuthor(authorId, pageable));
+    }
+
+    @Test
+    public void getPostsByAuthor() {
+        User author = userService.saveUser(new User());
+        Post post = postService.savePost(Post.builder().author(author).build());
+        Pageable pageable = PageRequest.of(0, 10);
+        assertEquals(1, postService.getPostsByAuthor(author.getId(), pageable).getTotalElements());
+    }
 }

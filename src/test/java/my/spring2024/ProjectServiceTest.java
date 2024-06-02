@@ -9,6 +9,8 @@ import my.spring2024.domain.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -90,5 +92,28 @@ public class ProjectServiceTest {
     @Test
     public void testGetAllProjects(){
         assertEquals(2, projectService.getAllProjects(null, Pageable.unpaged()).getTotalElements());
+    }
+
+    @Test
+    public void searchProjectsByKeyword_shouldThrowExceptionForEmptyKeyword() {
+        String keyword = null;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        assertThrows(IllegalArgumentException.class, () -> projectService.searchProjectsByKeyword(keyword, pageable));
+    }
+
+    @Test
+    public void searchProjectsByDescriptionKeyword() {
+        String keyword = "for";
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Project> result = projectService.searchProjectsByKeyword(keyword, pageable);
+        assertEquals(2, result.getTotalElements());
+    }
+    @Test
+    public void searchProjectsByNameKeyword2() {
+        String keyword = "Project 1";
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Project> result = projectService.searchProjectsByKeyword(keyword, pageable);
+        assertEquals(1, result.getTotalElements());
     }
 }

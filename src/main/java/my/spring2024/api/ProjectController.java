@@ -35,7 +35,7 @@ public class ProjectController {
      * @param projectDTO DTO проекта для сохранения
      * @return сохраненный DTO проекта
      */
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<ProjectDTO> createProject(@Valid @RequestBody ProjectDTO projectDTO) {
         Project savedProject = projectService.saveProject(convertToEntity(projectDTO));
         return ResponseEntity.ok(convertToDto(savedProject));
@@ -50,7 +50,9 @@ public class ProjectController {
     @GetMapping("/{id}")
     public ResponseEntity<ProjectDTO> getProjectById(@PathVariable Long id) {
         Optional<Project> projectOptional = projectService.getProjectById(id);
-        return projectOptional.map(project -> ResponseEntity.ok(convertToDto(project))).orElseGet(() -> ResponseEntity.notFound().build());
+        return projectOptional
+                .map(project -> ResponseEntity.ok(convertToDto(project)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**

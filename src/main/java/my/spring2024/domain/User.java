@@ -79,6 +79,14 @@ public class User {
     private List<Project> pastProjects = new ArrayList<Project>();
 
     /**
+     * Роль пользователя в системе
+     */
+    @NonNull
+    @Getter
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
+
+    /**
      * Конструктор класса User.
      * Инициализирует объект User с указанными значениями идентификатора.
      *
@@ -88,9 +96,13 @@ public class User {
         this.id = id;
     }
 
-    @NonNull
-    @Getter
-    @Setter
-    @Enumerated(EnumType.STRING)
-    private Role role = Role.USER;
+    /**
+     * Устанавливает роль пользователя в системе
+     * @param role роль пользователя в системе
+     * @throws IllegalArgumentException если роль равна null
+     */
+    public void setRole(Role role) {
+        if(role == null) throw new IllegalArgumentException();
+        this.role = role;
+    }
 }

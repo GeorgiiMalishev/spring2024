@@ -1,10 +1,7 @@
 package my.spring2024.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +14,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Post {
     /**
      * Идентификатор поста.
@@ -26,9 +24,19 @@ public class Post {
     private Long id;
 
     /**
+     * Автор поста
+     */
+    @ManyToOne
+    private User author;
+
+    /**
+     * Заголовок поста
+     */
+    private String title;
+
+    /**
      * Текст поста.
      */
-    @Setter
     private String text;
 
     /**
@@ -43,4 +51,15 @@ public class Post {
      */
     @ManyToMany
     private List<User> respondents = new ArrayList<User>();
+
+    /**
+     * Устанавливает текст.
+     *
+     * @param text текст для установки
+     * @throws IllegalArgumentException если текст равен null
+     */
+    public void setText(String text) {
+        if(text == null) throw new IllegalArgumentException();
+        this.text = text;
+    }
 }

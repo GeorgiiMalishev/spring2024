@@ -1,3 +1,3 @@
-INSERT INTO "post" ("text") VALUES ('First post text');
-INSERT INTO "post" ("text") VALUES ('Second post text');
+INSERT INTO "post" ("title", "text") VALUES ('post1', 'First post text');
+INSERT INTO "post" ("title", "text") VALUES ('post2', 'Second post text');
 

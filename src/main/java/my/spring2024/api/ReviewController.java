@@ -41,7 +41,7 @@ public class ReviewController {
      * @param reviewDTO DTO отзыва для сохранения
      * @return сохраненный DTO отзыва
      */
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<ReviewDTO> createReview(@Valid @RequestBody ReviewDTO reviewDTO) {
         Review savedReview = reviewService.saveReview(convertToEntity(reviewDTO));
         return ResponseEntity.ok(convertToDto(savedReview));

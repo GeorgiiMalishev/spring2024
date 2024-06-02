@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -102,7 +103,7 @@ public class ReviewService {
         if(user == null)
         {
             log.info("Пользователь не найден, при попытке получения списка отзывов, полученных конкретным пользователем");
-            return null;
+            return new ArrayList<>();
         }
         log.info("Получен список отзывов, полученных конкретным пользователем с id {}", user.getId());
         return reviewRepository.findAllByReceiver(user);
@@ -118,7 +119,7 @@ public class ReviewService {
         if(project == null)
         {
             log.info("Проект не найден, при попытке получения списка отзывов, полученных конкретным проектом");
-            return null;
+            return new ArrayList<>();
         }
         log.info("Получен список отзывов, полученных конкретным проектом с id {}", project.getId());
         return reviewRepository.findAllByProject(project);
@@ -159,11 +160,10 @@ public class ReviewService {
         if(receiver.getReceivedReviews().contains(review)){
             review.setReceiver(receiver);
             log.info("Добавлен получатель с id {} к отзыву {}", receiver.getId(), review.getId());
+            reviewRepository.save(review);
         } else {
             log.info("Не уддалось добавить получателя с id {} к отзыву {}, получатель не имеет этого отзыва", receiver.getId(), review.getId());
         }
-
-        reviewRepository.save(review);
     }
 
     /**
@@ -176,11 +176,10 @@ public class ReviewService {
         if (sender.getSentReviews().contains(review)) {
             review.setSender(sender);
             log.info("Добавлен отправитель с id {} к отзыву {}", sender.getId(), review.getId());
+            reviewRepository.save(review);
         } else {
             log.info("Не удалось добавить отправителя с id {} к отзыву {}, отправитель не имеет этого отзыва", sender.getId(), review.getId());
         }
-
-        reviewRepository.save(review);
     }
 
     /**
@@ -193,11 +192,10 @@ public class ReviewService {
         if(project.getReviews().contains(review)){
             review.setProject(project);
             log.info("Добавлен проект с id {} к отзыву {}", project.getId(), review.getId());
+            reviewRepository.save(review);
         } else {
             log.info("Не уддалось добавить проект с id {} к отзыву {}, проект не имеет этого отзыва", project.getId(), review.getId());
         }
-
-        reviewRepository.save(review);
     }
 
     /**

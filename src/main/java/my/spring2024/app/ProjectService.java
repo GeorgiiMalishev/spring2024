@@ -190,5 +190,19 @@ public class ProjectService {
         log.info("Найдено {} проектов", projects.getTotalElements());
         return projects;
     }
+
+    /**
+     * Ищет проекты по ключевым словам в тексте или заголовке.
+     * @param keyword ключевое слово для поиска.
+     * @param pageable объект для пагинации.
+     * @return страница проектов, содержащих ключевое слово.
+     * @throws IllegalArgumentException если ключевое слово пустое или null
+     */
+    public Page<Project> searchProjectsByKeyword(String keyword, Pageable pageable) {
+        if(keyword == null || keyword.isEmpty()) throw new IllegalArgumentException();
+        var projects = projectRepository.findByNameContainingOrDescriptionContaining(keyword, keyword, pageable);
+        log.info("Найдено {} проектов, содержащие ключевое слово '{}'", projects.getTotalElements(), keyword);
+        return projects;
+    }
 }
 
